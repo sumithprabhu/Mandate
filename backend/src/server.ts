@@ -83,7 +83,7 @@ app.post(
       parent.resolver as Address,
       parent.adapter8004 as Address,
       label,
-      agentURI || `https://agentns.example/agents/${label}.json`
+      agentURI || `https://mandate.example/agents/${label}.json`
     );
 
     const record = {
@@ -228,5 +228,5 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
 });
 
 app.listen(config.port, () => {
-  console.log(`AgentNS backend listening on :${config.port} (operator ${operator.address})`);
+  console.log(`Mandate backend listening on :${config.port} (operator ${operator.address})`);
 });

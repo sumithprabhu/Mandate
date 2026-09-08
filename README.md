@@ -51,9 +51,11 @@ forge test
 ## Status
 
 `contracts/` -- `PermissionGate.sol` done: request/approve/reject/execute state machine
-for ownership transfer + permission escalation, gated by a second signer (10 passing
-tests, `forge test` in `contracts/`). Second signer is a plain EOA for now; Phase 2
-points it at a Ledger-controlled address, no contract changes needed.
+for ownership transfer + permission escalation, plus an EIP-712 signature-based approval
+path (18 passing tests, `forge test` in `contracts/`). Ownership-transfer execution is
+generic (`target.call(data)`, operator-supplied calldata) rather than assuming an ERC-721
+shape -- the real agent's identity token turned out to be ERC-1155-shaped (an ENSv2
+registry token), which an earlier version of this contract would have gotten wrong.
 
 `scripts/register-agent.ts` -- live on Sepolia (hackathon deployment): registered
 `agentns.eth` with its own subregistry, registered `agent1.agentns.eth` under it, deployed
@@ -63,7 +65,17 @@ one shared PermissionedResolver, bound the child name to a fresh ERC-8004 identi
 `docs/registered-agents.json`. `AGENT_URI_PLACEHOLDER` is a stub URL, not hosted yet --
 swap it once the backend serves real agent registration JSON.
 
-Not yet started: Ledger DMK wiring, subgraph, backend, frontend.
+`scripts/phase2-ledger-demo.ts` -- live on Sepolia: deployed `PermissionGate`, deployed a
+resolver only the gate can write to, and ran the full request -> sign -> relay -> execute
+cycle with the approver as a throwaway keypair that held **zero ETH** the whole time --
+it only ever signs an offline EIP-712 message, never sends a transaction. See
+`docs/phase2-deployment.json` for addresses/tx hashes and `docs/ledger-integration.md` for
+why signatures instead of raw Clear-Signed transactions. `scripts/ledger-approve.ts`
+implements the same flow against real Ledger hardware (device-management-kit + node-hid,
+no browser needed) -- type-checked against the real SDK but **not yet run**, since no
+device or Speculos emulator was available in this session.
+
+Not yet started: subgraph, backend, frontend.
 
 ## Build order
 

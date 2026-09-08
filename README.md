@@ -33,9 +33,37 @@ multi-chain support, any token/payment flow.
   deployment) with provenance and independent on-chain verification notes. Update
   this file, not hardcoded addresses in code, when a deployment changes.
 
+## Chain target
+
+Sepolia only. ENSv2 deployment: **hackathon** (ENS Labs' dedicated ETHOnline 2026
+deployment, `--deployment hackathon` in the `mm ensv2` CLI) -- see
+`docs/deployments.json` for the full address table and verification status.
+
+## Setup
+
+```bash
+cd contracts
+forge install foundry-rs/forge-std --no-commit   # not vendored -- see contracts/lib/ in .gitignore
+cp .env.example .env                             # fill in SEPOLIA_RPC_URL, ETHERSCAN_API_KEY
+forge test
+```
+
 ## Status
 
-Early scaffold. See open tasks / build order below.
+`contracts/` -- `PermissionGate.sol` done: request/approve/reject/execute state machine
+for ownership transfer + permission escalation, gated by a second signer (10 passing
+tests, `forge test` in `contracts/`). Second signer is a plain EOA for now; Phase 2
+points it at a Ledger-controlled address, no contract changes needed.
+
+`scripts/register-agent.ts` -- live on Sepolia (hackathon deployment): registered
+`agentns.eth` with its own subregistry, registered `agent1.agentns.eth` under it, deployed
+one shared PermissionedResolver, bound the child name to a fresh ERC-8004 identity
+(agentId 10158) via Adapter8004, and wrote a real capability-manifest text record
+(`agentns:capabilities`) to the resolver. Full addresses, token IDs and tx hashes in
+`docs/registered-agents.json`. `AGENT_URI_PLACEHOLDER` is a stub URL, not hosted yet --
+swap it once the backend serves real agent registration JSON.
+
+Not yet started: Ledger DMK wiring, subgraph, backend, frontend.
 
 ## Build order
 

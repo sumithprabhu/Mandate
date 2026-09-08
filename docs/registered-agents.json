@@ -1,0 +1,51 @@
+{
+  "deployment": "hackathon",
+  "chain": 11155111,
+  "registeredAt": "2026-09-08",
+  "operator": "0x0Fe68c895aafF3FD16d236A20c1F9113F26e7486",
+  "note": "operator is a test-only Sepolia wallet, funded with test ETH only. Its private key lives in contracts/.env (gitignored), not committed anywhere.",
+  "parentName": {
+    "name": "agentns.eth",
+    "registrar": "0x7d1B7f586a62Ac3F54b9A396849757814283270b",
+    "durationSeconds": 31536000,
+    "registerTx": "0x57364f6ff3a7e34d7e0545b41adc0e01151aa05f2ea66b536000fba084814b3f"
+  },
+  "resolver": {
+    "address": "0x4BEB48CE6c91DDFC259fF964D01Ef35f6E17ae57",
+    "implementation": "0xa9d3814AB151BF6E37A427432795371a8361614e",
+    "deployTx": "0x2157c78e47c3db061fa4533ad4db8f90b76f5c0404c766ab5ac345c894ec3ffb",
+    "operatorRoleBitmap": 17,
+    "operatorRoleBitmapMeaning": "ROLE_SET_ADDRESS (1<<0) | ROLE_SET_TEXT (1<<4), granted at ROOT_RESOURCE -- operator can set address/text records for any name served by this resolver",
+    "shared": "used for both agentns.eth and agent1.agentns.eth -- PermissionedResolver supports multiple names per resolver"
+  },
+  "subregistry": {
+    "address": "0xD3AD5A42BACFA44FC70b574de4Dc7bd338Dc61e9",
+    "implementation": "0x47B442d0CF617c41CAbAFf5f02f44DD1e5f72546",
+    "deployTx": "0xb35c10ed88e7d76aa16f4f77eb279c7bee7dabc9b85fef3b06180dbfe74d9cb5",
+    "purpose": "holds agentns.eth's child names (e.g. agent1.agentns.eth)"
+  },
+  "testAgent": {
+    "name": "agent1.agentns.eth",
+    "tokenId": "12574331500417930745150951692014312166842720674563136141102103973686872637440",
+    "tokenContract": "0xD3AD5A42BACFA44FC70b574de4Dc7bd338Dc61e9",
+    "registerTx": "0x4935b1d53b137a4d02f44520d136edaad59163645fe983570017c27dbadfe0c2",
+    "erc8004": {
+      "adapter8004": "0x7621630cB63a73a194f45A3E6801B8C6A7eC2f92",
+      "identityRegistry": "0x8004A818BFB912233c491871b3d84c89A494BD9e",
+      "agentId": 10158,
+      "tokenStandard": "ERC721 (0) -- Adapter8004 reads ownerOf(tokenId) on the subregistry, which the ENSv2 ERC-1155 singleton also exposes",
+      "bindTx": "0x3e0578441091e82367a6a8e4ce6f25ab5a568701f36e30933201ec8e78f2b217",
+      "agentURI": "https://agentns.example/agents/agent1.json",
+      "agentURIStatus": "PLACEHOLDER -- not hosted yet. Replace via Adapter8004.setAgentURI(agentId, newURI) once the backend serves real registration JSON (Phase 4)."
+    },
+    "records": [
+      {
+        "key": "agentns:capabilities",
+        "value": "read,transact",
+        "setTx": "0xfca6e84392d63e832f4af577882f4fc131d6fdf315c3e9a4d90ea4bfec05fcb6",
+        "note": "proof-of-concept capability manifest entry -- resolvable by anyone via the Universal Resolver, this is the public permission surface the PermissionGate contract will gate escalation of"
+      }
+    ]
+  },
+  "howToVerify": "Read any of the above via the hackathon deployment's Universal Resolver (docs/deployments.json ensv2.hackathon.universalResolver), or read the resolver/registry contracts directly with the addresses above on Sepolia (e.g. Blockscout: eth-sepolia.blockscout.com)."
+}

@@ -1,0 +1,17 @@
+node_modules/
+contracts/lib/
+.env
+.env.*
+!.env.example
+dist/
+build/
+out/
+cache/
+broadcast/
+coverage/
+.DS_Store
+*.log
+.idea/
+.vscode/
+subgraph/generated/
+subgraph/build/

@@ -1,0 +1,54 @@
+{
+  "chain": {
+    "name": "sepolia",
+    "id": 11155111
+  },
+  "ensv2": {
+    "deployment": "hackathon",
+    "deploymentId": "ensv2-sepolia-hackathon-2026-09",
+    "generation": "g2",
+    "note": "ENS Labs' dedicated ETHOnline 2026 deployment. Lifetime not announced by ENS Labs -- treat as temporary. Fall back to 'beta' (deploymentId ensv2-sepolia-2026-07-30, g1, addresses below) only if the hackathon deployment goes away before submission. g1 and g2 are different contract generations and are NOT cross-compatible (different resolver initializers/setters, different IUniversalResolverV2 interface ids) -- never mix addresses across the two tables.",
+    "verification": "3 of the addresses below (universalResolver, rootRegistry, identityRegistry) independently confirmed live via Blockscout on 2026-09-08: all verified contracts, hackathon-generation ones created 2026-09-03, matching the deployment id's timestamp. Remaining addresses (registrar, oracle, paymentToken, resolverFactory, resolverImplementation, resolverProxyLogic, subregistryImplementation, reverseRegistrar) sourced from https://mm-ensv2.estmcmxci.co/reference/deployment but not yet individually re-verified on chain -- do that before relying on them for a real write (resolver deploy / register).",
+    "hackathon": {
+      "universalResolver": "0xd26f2040D083Af1cD2962ba303F4BEa0c4faf142",
+      "universalHelper": "0x1d4cd7545d456f3b6A7E4380182279AFcFa887b6",
+      "rootRegistry": "0xe7f0D5724f8337e3Aa9A9910540341Ff4273fEd9",
+      "registry_eth": "0x1D78834d97c1D7b1A38c1deDBD1a287cFEd3971e",
+      "registrar": "0x7d1B7f586a62Ac3F54b9A396849757814283270b",
+      "rentPriceOracle": "0xFeba6589b5C1B35875C0389CCEDF83148B6eE71B",
+      "paymentToken": "0xcBFD80F74375c54E545AF34788Ff465F96F66F05",
+      "resolverFactory": "0x894bc9cC8ff1ad96B8a288C86A8C71D662C07780",
+      "resolverImplementation": "0xa9d3814AB151BF6E37A427432795371a8361614e",
+      "resolverProxyLogic": "0x2fDCaC2F94B2E65c5d5fBf36EC34483d25Ca9025",
+      "subregistryImplementation": "0x47B442d0CF617c41CAbAFf5f02f44DD1e5f72546",
+      "adapter8004": "0x7621630cB63a73a194f45A3E6801B8C6A7eC2f92",
+      "identityRegistry": "0x8004A818BFB912233c491871b3d84c89A494BD9e",
+      "reverseRegistrar": "0x060D5a54a8751eEc63B756E32Ef66f5eEf418e60"
+    },
+    "beta": {
+      "note": "fallback only -- g1 generation, not independently re-verified on chain by us",
+      "universalResolver": "0xeEeEEEeE14D718C2B47D9923Deab1335E144EeEe",
+      "rootRegistry": "0x8115186E8f2E0B0281e86ab91f0f48Ba90364354",
+      "registry_eth": "0xBDC85dD5b15D7ecb354cd7cb6f2c50b4f2c4F0E2",
+      "registrar": "0xa88553F454b77203B0D036A05c894d555EAAa2Cc",
+      "rentPriceOracle": "0x8914b66260eb8c4fff795650c3ae8cd335958987",
+      "paymentToken": "0x768F42455A2D082E23ceeF7d51e5787C82d67a39",
+      "resolverFactory": "0x10dC6333CDFe1FCEf624c6e0a8221b91804Cd7ef",
+      "resolverImplementation": "0x9EAe5C2730a7dD16BDD1DeE6421a1B91e3B0365e",
+      "resolverProxyLogic": "0xA136BeE4E37B44586242e516a39893EfD54315e9",
+      "subregistryImplementation": "0x624a25d67B59D587752EbEc8DdeD8827dAe52050",
+      "adapter8004": "0x7621630cB63a73a194f45A3E6801B8C6A7eC2f92",
+      "identityRegistry": "0x8004A818BFB912233c491871b3d84c89A494BD9e",
+      "reverseRegistrar": "0xA0a1AbcDAe1a2a4A2EF8e9113Ff0e02DD81DC0C6"
+    },
+    "source": "https://mm-ensv2.estmcmxci.co/reference/deployment, cross-referenced against https://docs.ens.domains/learn/deployments"
+  },
+  "erc8004": {
+    "sepolia": {
+      "IdentityRegistry": "0x8004A818BFB912233c491871b3d84c89A494BD9e",
+      "ReputationRegistry": "0x8004B663056A597Dffe9eCcC1965A193B7388713",
+      "ValidationRegistry": null
+    },
+    "note": "IdentityRegistry independently verified live on Blockscout 2026-09-08: ERC1967Proxy -> IdentityRegistryUpgradeable, ERC-721 'AgentIdentity' (AGENT), 1462 holders, first tx 2026-01-06 (matches the Jan 2026 mainnet launch). ReputationRegistry not yet independently re-verified. ValidationRegistry has no published address -- per erc-8004/erc-8004-contracts README, that registry is still under active revision with the TEE community. Subgraph should treat it as optional/absent until an address surfaces. Source: https://github.com/erc-8004/erc-8004-contracts (raw README, fetched 2026-09-08)."
+  }
+}

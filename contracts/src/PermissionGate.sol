@@ -95,7 +95,16 @@ contract PermissionGate {
         _;
     }
 
-    constructor(address _agentIdentityRegistry, address _operator, address _approver) {
+    /// @param _domainName EIP-712 domain name, e.g. "Mandate PermissionGate". A constructor
+    /// param rather than a hardcoded literal deliberately: the name is baked into this
+    /// instance's immutable DOMAIN_SEPARATOR at deploy time, so a hardcoded string would
+    /// mean every future deployment repeats whatever name the contract happened to be
+    /// written under, and rebranding the project would silently desync source from
+    /// already-deployed reality (this is exactly what happened once already -- the first
+    /// gate instance's domain says "AgentNS PermissionGate" because that was the project's
+    /// name in the source when it was deployed, and it stays that way forever since it's
+    /// immutable; see docs/mandate-deployment.json for that instance's address).
+    constructor(address _agentIdentityRegistry, address _operator, address _approver, string memory _domainName) {
         if (_agentIdentityRegistry == address(0) || _operator == address(0) || _approver == address(0)) {
             revert ZeroAddress();
         }
@@ -103,15 +112,10 @@ contract PermissionGate {
         operator = _operator;
         approver = _approver;
 
-        // Domain name is "AgentNS PermissionGate" -- the project's name at the time this
-        // contract was first deployed, before it was rebranded to "Mandate". Left
-        // unchanged deliberately: this string is baked into every deployed instance's
-        // immutable DOMAIN_SEPARATOR, so changing it here without redeploying would break
-        // signature verification for every already-deployed gate.
         DOMAIN_SEPARATOR = keccak256(
             abi.encode(
                 keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),
-                keccak256(bytes("AgentNS PermissionGate")),
+                keccak256(bytes(_domainName)),
                 keccak256(bytes("1")),
                 block.chainid,
                 address(this)

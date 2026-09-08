@@ -26,7 +26,7 @@ contract PermissionGateTest is Test {
         nft = new MockAgentNFT();
         registry1155 = new MockAgent1155();
         resolver = new MockResolver();
-        gate = new PermissionGate(address(nft), operator, approver);
+        gate = new PermissionGate(address(nft), operator, approver, "Test PermissionGate");
 
         // The agent's identity NFT lives with the gate, not the operator -- that's the point.
         nft.mint(address(gate), TOKEN_ID);
@@ -283,12 +283,12 @@ contract PermissionGateTest is Test {
 
     function test_constructor_rejectsZeroAddresses() public {
         vm.expectRevert(PermissionGate.ZeroAddress.selector);
-        new PermissionGate(address(0), operator, approver);
+        new PermissionGate(address(0), operator, approver, "Test PermissionGate");
 
         vm.expectRevert(PermissionGate.ZeroAddress.selector);
-        new PermissionGate(address(nft), address(0), approver);
+        new PermissionGate(address(nft), address(0), approver, "Test PermissionGate");
 
         vm.expectRevert(PermissionGate.ZeroAddress.selector);
-        new PermissionGate(address(nft), operator, address(0));
+        new PermissionGate(address(nft), operator, address(0), "Test PermissionGate");
     }
 }

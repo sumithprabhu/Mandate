@@ -84,7 +84,18 @@ top, linked to `Agent` so one query returns identity + reputation + gated-permis
 history together. See `docs/subgraph.md`. Not yet deployed to Subgraph Studio -- needs a
 Graph account and deploy key this session doesn't have; that's the next manual step.
 
-Not yet started: backend, frontend.
+`backend/` -- Express + viem REST API, no database (the chain is the source of truth;
+`backend/data/agents.json` just maps known agentIds to contract addresses). Every endpoint
+live-tested on Sepolia this session with real transactions: registered a second agent
+(`agent2.agentns.eth`, agentId 10164) via `POST /agents`, requested a permission escalation,
+fetched its EIP-712 typed-data, signed it with the same throwaway key standing in for the
+Ledger, and relayed the approval through `POST .../approve` -- action flipped to `Executed`,
+resolver record written, all over HTTP. Two known gaps documented in `docs/backend.md`:
+`/transfer` won't complete for the original agent yet (the gate never received custody of
+its token) and `/escalate` targets a separate gate-only-writable demo resolver rather than
+the agent's live one (no admin rights to delegate that role without a fresh deployment).
+
+Not yet started: frontend.
 
 ## Build order
 

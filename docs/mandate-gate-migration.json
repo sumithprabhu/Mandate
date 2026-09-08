@@ -1,0 +1,20 @@
+{
+  "gate": "0x8daa03bacaa88a660f29abceb1a72ccd0ac50637",
+  "resolver": "0xFfeee8d04Fe487861a20073E9015dEA42D31a1A3",
+  "subregistry": "0xea6F52BB85cf5316ecFd9Fcbe562b4eF6fcCce9b",
+  "migratedFrom": "0x4c67fbc5ced0d417d418632b18e4cb328198dad2",
+  "children": {
+    "agent1": {
+      "repointTx": "0x8be0cb1068b9e952d564882ab37d5384cafbfbd8c213c59aba208361712bce91",
+      "transferTx": "0x437c6882570f4fe412edf0fae2baf094dd050d98899b7790d4e4f032e3fa9af1"
+    },
+    "agent2": {
+      "repointTx": "0x334361a4074862d83770c151d720908d2079a46d46cf36e0be6ecaf545f0e5c9",
+      "transferTx": "0xd85b670d4d657a5ab86020ce817cff914c01e727afe561105ae6eb87d77c1f83"
+    }
+  },
+  "firstMandateEscalation": {
+    "actionId": "0",
+    "txHash": "0x2dc05f791c46a10207d595ed7cfdebd36f697232526216c12b6a5210bc8ebb4b"
+  }
+}

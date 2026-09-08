@@ -1,0 +1,129 @@
+# AgentNS subgraph schema.
+#
+# Entity names and field shapes for Agent / Feedback / FeedbackResponse / Protocol
+# deliberately follow the conventions of the Agent0 Subgraphs
+# (github.com/agent0lab/subgraph, thegraph.com/docs/en/subgraphs/existing-subgraphs/agent0),
+# The Graph's standardized ERC-8004 indexing schema, already live on Sepolia against the
+# same IdentityRegistry/ReputationRegistry addresses this subgraph indexes. Aligning with
+# it (rather than inventing an unrelated shape) is the point: a query written against this
+# subgraph reads the same way a query against Agent0's would for the entities we share.
+# The code here is independently written, not copied -- their repo carries no LICENSE file,
+# so this project treats their schema as a naming/shape convention to align with, not a
+# source to redistribute.
+#
+# PermissionGateAction is this project's own addition: no standardized schema exists yet
+# for "an agent's ownership/permission change history gated behind a second approval",
+# because AgentNS is what's proposing that this history should exist and be indexed at
+# all. It's linked to Agent by agentId so one query can pull identity + reputation +
+# gated-action history together -- the "full trust profile in one query" goal.
+
+type Agent @entity(immutable: false) {
+  id: ID! # "chainId:agentId"
+  chainId: BigInt!
+  agentId: BigInt!
+
+  agentURI: String
+  owner: Bytes!
+
+  createdAt: BigInt!
+  updatedAt: BigInt!
+
+  feedback: [Feedback!]! @derivedFrom(field: "agent")
+  metadata: [AgentMetadata!]! @derivedFrom(field: "agent")
+  gatedActions: [PermissionGateAction!]! @derivedFrom(field: "agent")
+
+  totalFeedback: BigInt!
+}
+
+type AgentMetadata @entity(immutable: false) {
+  id: ID! # "chainId:agentId:key"
+  agent: Agent!
+  key: String!
+  value: Bytes!
+  updatedAt: BigInt!
+}
+
+type Feedback @entity(immutable: false) {
+  id: ID! # "chainId:agentId:clientAddress:feedbackIndex"
+  agent: Agent!
+  clientAddress: Bytes!
+  feedbackIndex: BigInt!
+
+  value: BigInt! # raw int128 value as emitted; valueDecimals gives the scale
+  valueDecimals: Int!
+  tag1: String
+  tag2: String
+  endpoint: String
+  feedbackURI: String
+  feedbackHash: Bytes
+
+  isRevoked: Boolean!
+  createdAt: BigInt!
+  revokedAt: BigInt
+
+  responses: [FeedbackResponse!]! @derivedFrom(field: "feedback")
+}
+
+type FeedbackResponse @entity(immutable: false) {
+  id: ID! # "feedbackId:responseIndex"
+  feedback: Feedback!
+  responder: Bytes!
+  responseURI: String
+  responseHash: Bytes
+  createdAt: BigInt!
+}
+
+type Protocol @entity(immutable: false) {
+  id: ID! # "chainId"
+  chainId: BigInt!
+  name: String!
+
+  identityRegistry: Bytes!
+  reputationRegistry: Bytes!
+  permissionGate: Bytes
+
+  createdAt: BigInt!
+  updatedAt: BigInt!
+}
+
+enum ActionType {
+  OwnershipTransfer
+  PermissionEscalation
+}
+
+enum ActionStatus {
+  Pending
+  Rejected
+  Executed
+}
+
+# The differentiator: ownership-transfer and permission-escalation requests for one
+# agent's PermissionGate, gated behind a second approval (a Ledger-controlled key in
+# production -- see docs/ledger-integration.md at the repo root).
+type PermissionGateAction @entity(immutable: false) {
+  id: ID! # "gateAddress:actionId"
+  gate: Bytes! # the PermissionGate contract address
+  actionId: BigInt!
+  actionType: ActionType!
+
+  # Populated only for actionType == OwnershipTransfer.
+  target: Bytes # the token registry contract the transfer would run against
+  tokenId: BigInt
+  newOwner: Bytes
+
+  # Populated only for actionType == PermissionEscalation.
+  escalationTarget: Bytes # e.g. the agent's resolver
+  escalationData: Bytes
+
+  requestedBy: Bytes!
+  requestedAt: BigInt!
+
+  status: ActionStatus!
+  approvedBy: Bytes
+  executedAt: BigInt
+
+  # Which agent this gate protects. Resolved at indexing time (see subgraph/src/permission-gate.ts)
+  # rather than from the event itself -- PermissionGate is deliberately registry-agnostic
+  # (see contracts/src/PermissionGate.sol) and doesn't carry an agentId on chain.
+  agent: Agent
+}

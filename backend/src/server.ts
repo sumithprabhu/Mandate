@@ -20,6 +20,16 @@ const CHAIN_ID = 11155111;
 const app = express();
 app.use(express.json());
 
+// Minimal CORS for the local frontend dev server -- no separate `cors` dependency needed
+// for a single-origin, header-only allowance like this.
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "content-type");
+  if (req.method === "OPTIONS") return void res.sendStatus(204);
+  next();
+});
+
 function asyncHandler(fn: (req: Request, res: Response) => Promise<void>) {
   return (req: Request, res: Response, next: NextFunction) => fn(req, res).catch(next);
 }

@@ -1,0 +1,35 @@
+{
+  "chain": 11155111,
+  "deployedAt": "2026-09-08",
+  "permissionGate": {
+    "address": "0x7308fd71f0d0282465963fe692e082beabbf1a47",
+    "deployTx": "0xfdd3f7a126d8b007e15e4668e4d8c967d55a481d6a0a7226b27663b6d05bf9d4",
+    "constructorArgs": {
+      "agentIdentityRegistry": "0xD3AD5A42BACFA44FC70b574de4Dc7bd338Dc61e9",
+      "note": "informational only, per contract comment -- see docs/registered-agents.json subregistry",
+      "operator": "0x0Fe68c895aafF3FD16d236A20c1F9113F26e7486",
+      "approver": "0xbB209F3e501a13b69F30BC6f27C7E2Eaa8D3aC28"
+    }
+  },
+  "approver": {
+    "address": "0xbB209F3e501a13b69F30BC6f27C7E2Eaa8D3aC28",
+    "role": "throwaway keypair standing in for the future Ledger-controlled key",
+    "ethBalance": "0 -- verified before and after the demo; approveWithSignature() never requires the approver to hold gas",
+    "note": "private key lives in contracts/.env (gitignored) as LEDGER_STANDIN_PRIVATE_KEY. Swap to a real Ledger by calling PermissionGate.setApprover(realLedgerAddress) -- see docs/ledger-integration.md."
+  },
+  "gatedResolver": {
+    "address": "0x1C7a20314A0A60382a5a208d8C891d2Ddb32Eedf",
+    "deployTx": "0xfd1c9da1ea7dfe428bebec7a61724f5f097322ad9dafb3ff66247eb3bbd00fe0",
+    "note": "fresh PermissionedResolver whose ONLY writer role holder is the PermissionGate contract itself -- not even the operator wallet can write to it directly. Deployed separately from the agent's live resolver (docs/registered-agents.json) so this demo never touches production agent state."
+  },
+  "demoRun": {
+    "actionId": 0,
+    "actionType": "PermissionEscalation",
+    "requestTx": "0xc90550ced7eab1e592d4d866f28c01197e015de299ce9741bb8e88cc78b59369",
+    "relayTx": "0x188e08647fda96ea37c2f4c24175c406cb2904357d7c4ee50693574528c5bcc8",
+    "recordWritten": { "key": "agentns:ledger-gated", "value": "true" },
+    "flow": "operator requests -> action PENDING, nothing written -> approver signs EIP-712 Approval(actionId) completely offline, zero ETH -> operator relays approveWithSignature() -> resolver write executes atomically with the approval",
+    "script": "scripts/phase2-ledger-demo.ts"
+  },
+  "hardwareStatus": "Not yet run against a physical Ledger device or the Speculos emulator (neither was available in this session -- no Docker installed, no device connected). scripts/ledger-approve.ts implements the real device-management-kit + node-hid + device-signer-kit-ethereum path per docs/ledger-integration.md, ready to run once hardware is available; it produces the identical {domain, types, message} this demo already proved end to end on chain."
+}

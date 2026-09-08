@@ -22,7 +22,7 @@ function loadOrCreateProtocol(timestamp: BigInt): Protocol {
   if (protocol == null) {
     protocol = new Protocol(id);
     protocol.chainId = CHAIN_ID;
-    protocol.name = "AgentNS (Sepolia, ENSv2 hackathon deployment)";
+    protocol.name = "Mandate (Sepolia, ENSv2 hackathon deployment)";
     protocol.identityRegistry = IDENTITY_REGISTRY;
     protocol.reputationRegistry = REPUTATION_REGISTRY;
     protocol.permissionGate = PERMISSION_GATE;

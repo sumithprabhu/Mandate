@@ -1,4 +1,4 @@
-# AgentNS subgraph schema.
+# Mandate subgraph schema.
 #
 # Entity names and field shapes for Agent / Feedback / FeedbackResponse / Protocol
 # deliberately follow the conventions of the Agent0 Subgraphs
@@ -13,7 +13,7 @@
 #
 # PermissionGateAction is this project's own addition: no standardized schema exists yet
 # for "an agent's ownership/permission change history gated behind a second approval",
-# because AgentNS is what's proposing that this history should exist and be indexed at
+# because Mandate is what's proposing that this history should exist and be indexed at
 # all. It's linked to Agent by agentId so one query can pull identity + reputation +
 # gated-action history together -- the "full trust profile in one query" goal.
 

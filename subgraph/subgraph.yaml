@@ -1,6 +1,6 @@
 specVersion: 1.0.0
 description: >
-  AgentNS -- ERC-8004 identity/reputation on Sepolia (same registries and start blocks the
+  Mandate -- ERC-8004 identity/reputation on Sepolia (same registries and start blocks the
   Agent0 Subgraphs standard uses: thegraph.com/docs/en/subgraphs/existing-subgraphs/agent0)
   plus PermissionGate, this project's own Ledger-gated ownership-transfer and
   permission-escalation history for the agent it protects.

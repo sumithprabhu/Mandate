@@ -1,11 +1,11 @@
 {
-  "name": "agentns-subgraph",
+  "name": "mandate-subgraph",
   "private": true,
   "scripts": {
     "codegen": "graph codegen",
     "build": "graph build",
     "auth": "graph auth",
-    "deploy": "graph deploy agentns"
+    "deploy": "graph deploy mandate"
   },
   "dependencies": {
     "@graphprotocol/graph-cli": "^0.98.1",

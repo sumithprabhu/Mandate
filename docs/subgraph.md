@@ -26,7 +26,7 @@ credit, not a source to redistribute.
 
 `PermissionGateAction` is this project's own addition on top: an agent's ownership-transfer
 and permission-escalation history, gated behind a second approval. No standardized schema
-exists yet for that, because AgentNS is what's proposing this history should exist and be
+exists yet for that, because Mandate is what's proposing this history should exist and be
 indexed at all -- see `docs/ledger-integration.md` and `contracts/src/PermissionGate.sol`.
 
 ## Data sources
@@ -84,11 +84,11 @@ composed from three separate on-chain data sources into one entity graph.
 ```bash
 cd subgraph
 npx graph auth --studio <DEPLOY_KEY>          # from thegraph.com/studio, after creating
-                                                # a subgraph there named "agentns"
-npm run deploy                                 # graph deploy agentns
+                                                # a subgraph there named "mandate"
+npm run deploy                                 # graph deploy mandate
 ```
 
 Requires a Subgraph Studio account (thegraph.com/studio) and a subgraph created there
-named `agentns` (or update the `deploy` script in `package.json` to match whatever name
+named `mandate` (or update the `deploy` script in `package.json` to match whatever name
 is chosen) -- not something this session has credentials for. Once deployed, update this
 file with the live query URL.

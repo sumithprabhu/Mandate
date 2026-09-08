@@ -1,0 +1,47 @@
+{
+  "deployedAt": "2026-09-08",
+  "parentName": "mandate.eth",
+  "note": "Raw record of scripts/rebrand-onchain.ts's actual run, reconstructed from terminal output -- the script's own writeFileSync never ran because it failed at Step 6b (domain-name mismatch, fixed by scripts/migrate-gate-domain.ts, see docs/mandate-gate-migration.json and docs/mandate.md for the canonical final addresses).",
+  "subregistry": "0xea6F52BB85cf5316ecFd9Fcbe562b4eF6fcCce9b",
+  "subregistryDeployTx": "0x8ad2b5bae070ea03d1904ea569d138f5f8f3856d20ea390448e3f8fae20cfbe9",
+  "firstGateAttempt": {
+    "address": "0x4c67fbc5ced0d417d418632b18e4cb328198dad2",
+    "deployTx": "0xa21c7eb3442b350f8fe982ab1f83be5fa299492bd0c2aff1f8006b82b2b3c1af",
+    "note": "domain 'AgentNS PermissionGate' -- deployed before PermissionGate.sol's constructor took a domainName parameter. Used briefly to hold agent1/agent2 custody, then superseded by migrate-gate-domain.ts. Still functions correctly, just not the canonical gate going forward -- see docs/mandate-gate-migration.json."
+  },
+  "firstResolverAttempt": {
+    "address": "0xbf44362462EaAD3853724320b1b8300D13825AF6",
+    "deployTx": "0x4884d1c81ba3e2e65992c0d736045711c5204cf0fd8af140bda27d821f3135ad",
+    "note": "gate-only-writable, granted to firstGateAttempt. Superseded -- see docs/mandate-gate-migration.json for the resolver agent1/agent2 actually use now."
+  },
+  "parentRegisterTx": "0x7dc272e44e2725a505ff562f63cecddfc6eafecf8199b497013394dfd325bdcd",
+  "agent1": {
+    "name": "agent1.mandate.eth",
+    "abandonedFirstAttempt": {
+      "tokenId": "12574331500417930745150951692014312166842720674563136141102103973686872637440",
+      "agentId": 10167,
+      "registerTx": "0xae085c9bd9afe62221ebe9e296a303aa060070f34d723d6caff440e83504b0a2",
+      "bindTx": "0x55df3f2854ce38b3b43c0ef9054e43420e7d3d78f776023d840f5a0da2de096b",
+      "note": "registered without ROLE_CAN_TRANSFER_ADMIN -- custody transfer reverted with TransferDisallowed. Unregistered (tx 0x360426321a050909dd192e4d4af03607f2b51e03dc461ff8ced79769e8939c7e) and re-registered below. This agentId/tokenId pair is abandoned, not in use."
+    },
+    "tokenId": "12574331500417930745150951692014312166842720674563136141102103973686872637441",
+    "agentId": 10168,
+    "registerTx": "0x3041a594659c64d8e2b47d45becb0291efbeb95b621549f8762f18975c8f178d",
+    "bindTx": "0x8ff7ac424ffda2a91114727f8db7e2ef5f134ec4f0f2fd2c8bb83552ee41f4fb",
+    "custodyTransferToFirstGateTx": "0x0c2bd4c1e28d3f413571d8733a2a0a9363f3fc396fee7e7fd477f8bcc1f09ecf"
+  },
+  "agent2": {
+    "name": "agent2.mandate.eth",
+    "tokenId": "12914604233378511217194968470333727029220150315766677847302245112977196843008",
+    "agentId": 10169,
+    "registerTx": "0xe7524f2a6c52b2181009bd449a9d96977ef94e9c39f00368c1739aeb23290467",
+    "bindTx": "0x0d36509893f6386eb526c604ed567e98e187e9132ee3e78e9e0dd63716415d66",
+    "custodyTransferToFirstGateTx": "0x04a778f1ff8596b3d35da4cd402f44615a3ff53010a33ce168cfdc4ca53e55d5"
+  },
+  "resolverGatingProofOnFirstAttempt": {
+    "directWriteReverted": true,
+    "escalationActionId": 0,
+    "requestTx": "not captured in terminal output (Step 6b, before failure)",
+    "note": "This escalation used the wrong signing domain and reverted at approval -- see docs/mandate-gate-migration.json's firstMandateEscalation for the one that actually succeeded, on the canonical gate."
+  }
+}

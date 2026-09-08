@@ -1,0 +1,28 @@
+{
+  "10158": {
+    "agentId": 10158,
+    "name": "agent1.agentns.eth",
+    "parentName": "agentns.eth",
+    "owner": "0x0Fe68c895aafF3FD16d236A20c1F9113F26e7486",
+    "identityRegistry": "0x8004A818BFB912233c491871b3d84c89A494BD9e",
+    "adapter8004": "0x7621630cB63a73a194f45A3E6801B8C6A7eC2f92",
+    "resolver": "0x4BEB48CE6c91DDFC259fF964D01Ef35f6E17ae57",
+    "subregistry": "0xD3AD5A42BACFA44FC70b574de4Dc7bd338Dc61e9",
+    "tokenId": "12574331500417930745150951692014312166842720674563136141102103973686872637440",
+    "gate": "0x7308fd71f0d0282465963fe692e082beabbf1a47",
+    "gatedResolver": "0x1C7a20314A0A60382a5a208d8C891d2Ddb32Eedf",
+    "approver": "0xbB209F3e501a13b69F30BC6f27C7E2Eaa8D3aC28",
+    "note": "gate does not yet hold custody of `tokenId` (still owned directly by `owner`) -- requestOwnershipTransfer against `subregistry`/`tokenId` will request correctly but fail at approval time until that custody transfer happens. `resolver` is the agent's live resolver (writable directly by `owner`, not gated); `gatedResolver` is a separate resolver only the gate can write to, from the Phase 2 demo -- use it for a real end-to-end escalation test. See docs/backend.md."
+  },
+  "10164": {
+    "agentId": 10164,
+    "name": "agent2.agentns.eth",
+    "parentName": "agentns.eth",
+    "owner": "0x0Fe68c895aafF3FD16d236A20c1F9113F26e7486",
+    "identityRegistry": "0x8004A818BFB912233c491871b3d84c89A494BD9e",
+    "adapter8004": "0x7621630cB63a73a194f45A3E6801B8C6A7eC2f92",
+    "resolver": "0x4BEB48CE6c91DDFC259fF964D01Ef35f6E17ae57",
+    "subregistry": "0xD3AD5A42BACFA44FC70b574de4Dc7bd338Dc61e9",
+    "tokenId": "12914604233378511217194968470333727029220150315766677847302245112977196843008"
+  }
+}

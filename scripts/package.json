@@ -3,9 +3,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "register-agent": "tsx register-agent.ts"
+    "register-agent": "tsx register-agent.ts",
+    "phase2-demo": "tsx phase2-ledger-demo.ts",
+    "ledger-approve": "tsx ledger-approve.ts"
   },
   "dependencies": {
+    "@ledgerhq/device-management-kit": "^1.8.0",
+    "@ledgerhq/device-signer-kit-ethereum": "^1.0.0",
+    "@ledgerhq/device-transport-kit-node-hid": "^1.0.0",
     "dotenv": "^16.4.0",
     "viem": "^2.21.0"
   },

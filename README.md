@@ -8,10 +8,14 @@ that require a physical Ledger confirmation, exposes every agent's permissions
 publicly via ENSv2, and makes reputation/validation history queryable across the
 whole ecosystem via a standardized Graph subgraph.
 
-Formerly named AgentNS -- renamed, code and docs only (see individual files for why a few
-already-deployed identifiers, like the ENS name `agentns.eth` and the EIP-712 domain string
-`"AgentNS PermissionGate"`, still say the old name: they're baked into on-chain state that
-would need a fresh deployment to change, not just a rename).
+Formerly named AgentNS. `agentns.eth` and its original gate are untouched and still live --
+but `mandate.eth` is now also genuinely registered on chain, with a freshly deployed
+`PermissionGate` whose EIP-712 domain actually says "Mandate PermissionGate" (that name
+turned out to be compile-time-baked into the bytecode, not something a redeploy alone
+changes -- fixed by making it a constructor parameter, see `docs/mandate.md`). Along the
+way, both `docs/backend.md`'s known gaps got fixed for real on the new deployment: the gate
+genuinely holds custody of both agents' tokens, and their resolver is writable only by the
+gate, not the operator directly.
 
 ## Bounty targets
 

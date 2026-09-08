@@ -12,7 +12,7 @@
     "gate": "0x7308fd71f0d0282465963fe692e082beabbf1a47",
     "gatedResolver": "0x1C7a20314A0A60382a5a208d8C891d2Ddb32Eedf",
     "approver": "0xbB209F3e501a13b69F30BC6f27C7E2Eaa8D3aC28",
-    "note": "gate does not yet hold custody of `tokenId` (still owned directly by `owner`) -- requestOwnershipTransfer against `subregistry`/`tokenId` will request correctly but fail at approval time until that custody transfer happens. `resolver` is the agent's live resolver (writable directly by `owner`, not gated); `gatedResolver` is a separate resolver only the gate can write to, from the Phase 2 demo -- use it for a real end-to-end escalation test. See docs/backend.md."
+    "note": "Original agentns.eth deployment, EIP-712 domain 'AgentNS PermissionGate'. gate does not hold custody of `tokenId` (still owned directly by `owner`) -- requestOwnershipTransfer will request correctly but fail at approval time. `resolver` is writable directly by `owner`, not gated; `gatedResolver` is a separate resolver only the gate can write to. See docs/backend.md and docs/mandate.md (the mandate.eth agents below fix both gaps)."
   },
   "10164": {
     "agentId": 10164,
@@ -23,6 +23,35 @@
     "adapter8004": "0x7621630cB63a73a194f45A3E6801B8C6A7eC2f92",
     "resolver": "0x4BEB48CE6c91DDFC259fF964D01Ef35f6E17ae57",
     "subregistry": "0xD3AD5A42BACFA44FC70b574de4Dc7bd338Dc61e9",
-    "tokenId": "12914604233378511217194968470333727029220150315766677847302245112977196843008"
+    "tokenId": "12914604233378511217194968470333727029220150315766677847302245112977196843008",
+    "note": "Original agentns.eth deployment. No gate configured for this one -- registered before Phase 2 existed."
+  },
+  "10168": {
+    "agentId": 10168,
+    "name": "agent1.mandate.eth",
+    "parentName": "mandate.eth",
+    "owner": "0x8DAa03bACaa88a660F29AbCeB1a72cCD0ac50637",
+    "identityRegistry": "0x8004A818BFB912233c491871b3d84c89A494BD9e",
+    "adapter8004": "0x7621630cB63a73a194f45A3E6801B8C6A7eC2f92",
+    "resolver": "0xFfeee8d04Fe487861a20073E9015dEA42D31a1A3",
+    "subregistry": "0xea6F52BB85cf5316ecFd9Fcbe562b4eF6fcCce9b",
+    "tokenId": "12574331500417930745150951692014312166842720674563136141102103973686872637441",
+    "gate": "0x8DAa03bACaa88a660F29AbCeB1a72cCD0ac50637",
+    "approver": "0xbB209F3e501a13b69F30BC6f27C7E2Eaa8D3aC28",
+    "note": "mandate.eth deployment, EIP-712 domain 'Mandate PermissionGate'. Both known gaps from the agentns.eth deployment are fixed here: the gate genuinely holds custody of `tokenId` (verified via ownerOf), and `resolver` is writable ONLY by the gate (not `owner` directly) -- see docs/mandate.md."
+  },
+  "10169": {
+    "agentId": 10169,
+    "name": "agent2.mandate.eth",
+    "parentName": "mandate.eth",
+    "owner": "0x8DAa03bACaa88a660F29AbCeB1a72cCD0ac50637",
+    "identityRegistry": "0x8004A818BFB912233c491871b3d84c89A494BD9e",
+    "adapter8004": "0x7621630cB63a73a194f45A3E6801B8C6A7eC2f92",
+    "resolver": "0xFfeee8d04Fe487861a20073E9015dEA42D31a1A3",
+    "subregistry": "0xea6F52BB85cf5316ecFd9Fcbe562b4eF6fcCce9b",
+    "tokenId": "12914604233378511217194968470333727029220150315766677847302245112977196843008",
+    "gate": "0x8DAa03bACaa88a660F29AbCeB1a72cCD0ac50637",
+    "approver": "0xbB209F3e501a13b69F30BC6f27C7E2Eaa8D3aC28",
+    "note": "mandate.eth deployment, same gate as agent1.mandate.eth. Both known gaps fixed -- see docs/mandate.md."
   }
 }

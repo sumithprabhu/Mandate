@@ -75,7 +75,16 @@ implements the same flow against real Ledger hardware (device-management-kit + n
 no browser needed) -- type-checked against the real SDK but **not yet run**, since no
 device or Speculos emulator was available in this session.
 
-Not yet started: subgraph, backend, frontend.
+`subgraph/` -- schema, manifest and mappings for IdentityRegistry + ReputationRegistry +
+PermissionGate, `graph codegen` and `graph build` both passing clean against the real
+deployed ABIs. Entity shapes follow the Agent0 Subgraphs convention (The Graph's own
+standardized ERC-8004 schema, already live on Sepolia against the same registries) rather
+than inventing something one-off; `PermissionGateAction` is this project's own addition on
+top, linked to `Agent` so one query returns identity + reputation + gated-permission
+history together. See `docs/subgraph.md`. Not yet deployed to Subgraph Studio -- needs a
+Graph account and deploy key this session doesn't have; that's the next manual step.
+
+Not yet started: backend, frontend.
 
 ## Build order
 

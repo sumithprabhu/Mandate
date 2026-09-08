@@ -95,7 +95,17 @@ resolver record written, all over HTTP. Two known gaps documented in `docs/backe
 its token) and `/escalate` targets a separate gate-only-writable demo resolver rather than
 the agent's live one (no admin rights to delegate that role without a fresh deployment).
 
-Not yet started: frontend.
+`frontend/` -- v1, deliberately nominal (plain forms/lists, no component library --
+real design pass comes later). Exercises every backend endpoint. Verified live in headless
+Chromium this session: real agent list, graceful subgraph-not-configured handling, and a
+permission-escalation request submitted through the actual UI (not curl), landing a real
+Sepolia transaction. Wallet connect is a plain injected-provider flow (viem + `window.ethereum`)
+rather than wagmi -- also the real path to hardware Clear Signing without DMK/node-hid,
+since MetaMask can back an account with a Ledger. See `docs/frontend.md`.
+
+All five build-order phases now have working code. Two manual steps remain, deliberately
+deferred rather than blocking further work: a physical Ledger tap (`docs/ledger-integration.md`)
+and the Subgraph Studio deploy (`docs/subgraph.md`).
 
 ## Build order
 

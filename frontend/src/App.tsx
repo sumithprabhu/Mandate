@@ -258,7 +258,7 @@ export default function App() {
   return (
     <div className="app">
       <header>
-        <h1>AgentNS</h1>
+        <h1>Mandate</h1>
         <div className="wallet">
           {wallet ? (
             <span className="hint">

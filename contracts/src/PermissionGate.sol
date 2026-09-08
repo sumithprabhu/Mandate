@@ -103,6 +103,11 @@ contract PermissionGate {
         operator = _operator;
         approver = _approver;
 
+        // Domain name is "AgentNS PermissionGate" -- the project's name at the time this
+        // contract was first deployed, before it was rebranded to "Mandate". Left
+        // unchanged deliberately: this string is baked into every deployed instance's
+        // immutable DOMAIN_SEPARATOR, so changing it here without redeploying would break
+        // signature verification for every already-deployed gate.
         DOMAIN_SEPARATOR = keccak256(
             abi.encode(
                 keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"),

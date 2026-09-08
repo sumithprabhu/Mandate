@@ -1,12 +1,17 @@
-# AgentNS
+# Mandate
 
 A trust & permissions control-plane for on-chain AI agents (ERC-8004).
 
 ERC-8004 gives AI agents on-chain identities, but ownership transfer and permission
-escalation are a single software signature away -- no second check. AgentNS makes
+escalation are a single software signature away -- no second check. Mandate makes
 that require a physical Ledger confirmation, exposes every agent's permissions
 publicly via ENSv2, and makes reputation/validation history queryable across the
 whole ecosystem via a standardized Graph subgraph.
+
+Formerly named AgentNS -- renamed, code and docs only (see individual files for why a few
+already-deployed identifiers, like the ENS name `agentns.eth` and the EIP-712 domain string
+`"AgentNS PermissionGate"`, still say the old name: they're baked into on-chain state that
+would need a fresh deployment to change, not just a rename).
 
 ## Bounty targets
 

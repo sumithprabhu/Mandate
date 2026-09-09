@@ -70,13 +70,18 @@ app.get(
 app.post(
   "/agents",
   asyncHandler(async (req, res) => {
-    const { label, agentURI } = req.body as { label?: string; agentURI?: string };
-    if (!label) return void res.status(400).json({ error: "label is required, e.g. 'agent2'" });
+    const { label, agentURI, parentAgentId } = req.body as { label?: string; agentURI?: string; parentAgentId?: number | string };
+    if (!label) return void res.status(400).json({ error: "label is required, e.g. 'agent3'" });
+    if (parentAgentId === undefined) {
+      return void res.status(400).json({
+        error: "parentAgentId is required -- the agentId of an existing agent whose subregistry/resolver/adapter8004 this one should share, e.g. 10168 for mandate.eth",
+      });
+    }
 
-    // Registers under the project's existing agentns.eth subregistry/resolver -- see
-    // docs/registered-agents.json for how those were set up (one-time, not per-agent).
-    const parent = getAgent(10158); // any existing record carries the shared infra addresses
-    if (!parent) return void res.status(500).json({ error: "no seed agent found to read shared subregistry/resolver/adapter8004 addresses from" });
+    // Registers under an existing namespace's shared subregistry/resolver -- see
+    // docs/mandate.md for how that infra was set up (one-time per namespace, not per-agent).
+    const parent = getAgent(parentAgentId);
+    if (!parent) return void res.status(404).json({ error: `unknown parentAgentId ${parentAgentId}` });
 
     const result = await registerChildAgent(
       parent.subregistry as Address,
@@ -96,6 +101,14 @@ app.post(
       resolver: parent.resolver,
       subregistry: parent.subregistry,
       tokenId: result.tokenId.toString(),
+      // Carried forward from the parent record so this agent's escalations/transfers can
+      // go through the same gate its siblings use, if the namespace has one configured.
+      // The gate does NOT automatically hold custody of this new token, and the subgraph's
+      // agent-attribution lookup (subgraph/src/permission-gate.ts) only knows about the two
+      // demo agents by name -- both are known, documented limitations, not silently assumed away.
+      ...(parent.gate ? { gate: parent.gate } : {}),
+      ...(parent.approver ? { approver: parent.approver } : {}),
+      ...(parent.domainName ? { domainName: parent.domainName } : {}),
     };
     saveAgent(record);
 

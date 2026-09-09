@@ -56,5 +56,19 @@
     "approver": "0x5B0Fb1547704DeAA7Ba4caF614154E7184ff226d",
     "domainName": "Mandate PermissionGate",
     "note": "mandate.eth deployment, same gate as agent1.mandate.eth, same real Ledger approver. Both known gaps fixed -- see docs/mandate.md and docs/ledger-integration.md."
+  },
+  "10189": {
+    "agentId": 10189,
+    "name": "agent3.mandate.eth",
+    "parentName": "mandate.eth",
+    "owner": "0x0Fe68c895aafF3FD16d236A20c1F9113F26e7486",
+    "identityRegistry": "0x8004A818BFB912233c491871b3d84c89A494BD9e",
+    "adapter8004": "0x7621630cB63a73a194f45A3E6801B8C6A7eC2f92",
+    "resolver": "0xFfeee8d04Fe487861a20073E9015dEA42D31a1A3",
+    "subregistry": "0xea6F52BB85cf5316ecFd9Fcbe562b4eF6fcCce9b",
+    "tokenId": "24882966361113136950817130719402461944115959501011664480851322662980025319424",
+    "gate": "0x8DAa03bACaa88a660F29AbCeB1a72cCD0ac50637",
+    "approver": "0x5B0Fb1547704DeAA7Ba4caF614154E7184ff226d",
+    "domainName": "Mandate PermissionGate"
   }
 }

@@ -157,7 +157,14 @@ async function main() {
   console.log(`Done. tx ${receipt.transactionHash}, status ${receipt.status}`);
 }
 
-main().catch((err) => {
-  console.error("FAILED:", err);
-  process.exit(1);
-});
+// node-hid's transport keeps the process alive after main() resolves (a background handle
+// for hot-plug detection never gets released) -- found this the hard way: a prior run's
+// process sat alive holding the USB connection for 45+ minutes, silently blocking every
+// later invocation at the "requesting address" step with no error, just an indefinite hang.
+// Explicit exit is the reliable fix regardless of what's holding the process open.
+main()
+  .then(() => process.exit(0))
+  .catch((err) => {
+    console.error("FAILED:", err);
+    process.exit(1);
+  });

@@ -21,6 +21,7 @@ export interface AgentRecord {
   gate?: string;
   gatedResolver?: string;
   approver?: string;
+  domainName?: string; // this gate's EIP-712 domain name -- required to build a valid typed-data payload; see docs/mandate.md
   note?: string;
 }
 

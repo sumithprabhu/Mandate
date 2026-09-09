@@ -12,6 +12,7 @@
     "gate": "0x7308fd71f0d0282465963fe692e082beabbf1a47",
     "gatedResolver": "0x1C7a20314A0A60382a5a208d8C891d2Ddb32Eedf",
     "approver": "0xbB209F3e501a13b69F30BC6f27C7E2Eaa8D3aC28",
+    "domainName": "AgentNS PermissionGate",
     "note": "Original agentns.eth deployment, EIP-712 domain 'AgentNS PermissionGate'. gate does not hold custody of `tokenId` (still owned directly by `owner`) -- requestOwnershipTransfer will request correctly but fail at approval time. `resolver` is writable directly by `owner`, not gated; `gatedResolver` is a separate resolver only the gate can write to. See docs/backend.md and docs/mandate.md (the mandate.eth agents below fix both gaps)."
   },
   "10164": {
@@ -38,6 +39,7 @@
     "tokenId": "12574331500417930745150951692014312166842720674563136141102103973686872637441",
     "gate": "0x8DAa03bACaa88a660F29AbCeB1a72cCD0ac50637",
     "approver": "0x5B0Fb1547704DeAA7Ba4caF614154E7184ff226d",
+    "domainName": "Mandate PermissionGate",
     "note": "mandate.eth deployment, EIP-712 domain 'Mandate PermissionGate'. Both known gaps from the agentns.eth deployment are fixed here: the gate genuinely holds custody of `tokenId` (verified via ownerOf), and `resolver` is writable ONLY by the gate (not `owner` directly) -- see docs/mandate.md. `approver` is a REAL physical Ledger device (rotated from the throwaway stand-in key via setApprover on 2026-09-09) -- see docs/ledger-integration.md for the verified end-to-end run."
   },
   "10169": {
@@ -52,6 +54,7 @@
     "tokenId": "12914604233378511217194968470333727029220150315766677847302245112977196843008",
     "gate": "0x8DAa03bACaa88a660F29AbCeB1a72cCD0ac50637",
     "approver": "0x5B0Fb1547704DeAA7Ba4caF614154E7184ff226d",
+    "domainName": "Mandate PermissionGate",
     "note": "mandate.eth deployment, same gate as agent1.mandate.eth, same real Ledger approver. Both known gaps fixed -- see docs/mandate.md and docs/ledger-integration.md."
   }
 }

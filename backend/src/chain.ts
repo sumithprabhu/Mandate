@@ -154,10 +154,10 @@ export async function getAction(gate: Address, actionId: bigint) {
   });
 }
 
-export function buildApprovalTypedData(gate: Address, actionId: bigint) {
+export function buildApprovalTypedData(gate: Address, actionId: bigint, domainName: string) {
   return {
     domain: {
-      name: "AgentNS PermissionGate",
+      name: domainName,
       version: "1",
       chainId: sepolia.id,
       verifyingContract: gate,

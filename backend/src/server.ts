@@ -146,12 +146,13 @@ app.post(
     const { key, value, target } = req.body as { key?: string; value?: string; target?: Address };
     if (!key || value === undefined) return void res.status(400).json({ error: "key and value are required" });
 
-    // Default to the gate-only-writable demo resolver (docs/phase2-deployment.json) --
-    // the agent's live `resolver` is writable directly by the operator and NOT gated
-    // (no admin role to delegate to the gate without redeploying it; see docs/backend.md).
-    const escalationTarget = target || (agent.gatedResolver as Address | undefined);
+    // Prefer a dedicated gate-only-writable resolver if this agent has one configured
+    // (older agentns.eth agents, docs/phase2-deployment.json); otherwise fall back to the
+    // agent's own `resolver` -- for mandate.eth agents that field IS the gated one
+    // (docs/mandate.md), so there's no separate gatedResolver to point at.
+    const escalationTarget = target || (agent.gatedResolver as Address | undefined) || (agent.resolver as Address | undefined);
     if (!escalationTarget) {
-      return void res.status(400).json({ error: "no target resolver -- pass one explicitly or configure agent.gatedResolver" });
+      return void res.status(400).json({ error: "no target resolver -- pass one explicitly, or configure agent.gatedResolver/agent.resolver" });
     }
 
     const data = encodeSetText(agent.name, key, value);
@@ -195,8 +196,11 @@ app.get(
     const agent = getAgent(req.params.agentId);
     if (!agent) return void res.status(404).json({ error: `unknown agentId ${req.params.agentId}` });
     if (!agent.gate) return void res.status(400).json({ error: "agent has no PermissionGate configured" });
+    if (!agent.domainName) {
+      return void res.status(500).json({ error: "agent has a gate but no domainName configured -- cannot build a valid typed-data payload, see docs/mandate.md" });
+    }
 
-    const typedData = buildApprovalTypedData(agent.gate as Address, BigInt(req.params.actionId));
+    const typedData = buildApprovalTypedData(agent.gate as Address, BigInt(req.params.actionId), agent.domainName);
     res.json({
       typedData,
       note: "sign this with the approver key (e.g. scripts/ledger-approve.ts for real Ledger hardware) and POST the resulting signature to .../approve",

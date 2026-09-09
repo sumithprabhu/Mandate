@@ -50,6 +50,30 @@ to -- that's what `/escalate` defaults to. Making the agent's *actual* resolver 
 mean deploying a new one with the gate granted write roles at init time and repointing the
 name at it via `subregistry.setResolver` -- doable, not done here.
 
+## Verification pass (2026-09-09) -- two more real bugs found and fixed
+
+1. **`buildApprovalTypedData` hardcoded the domain name** to `"AgentNS PermissionGate"`
+   regardless of which gate was passed. `GET /agents/10168/actions/:id/typed-data` (the
+   mandate.eth gate, domain `"Mandate PermissionGate"`) returned a payload that would
+   recover to the wrong signer -- anyone who signed and relayed it would hit `NotApprover`.
+   Same bug class already fixed once in `scripts/ledger-approve.ts`; this was the same
+   thing left unfixed in the backend. `domainName` is now required per-agent directory
+   data (`backend/data/agents.json`).
+2. **`/escalate` only defaulted to `agent.gatedResolver`**, never `agent.resolver` -- broke
+   for the mandate.eth agents specifically, since their `resolver` field *is* the gated one
+   and they have no separate `gatedResolver`. Fixed: falls back to `agent.resolver` too.
+
+Both would have broken the real demo flow on the mandate.eth agents specifically -- the
+ones where the underlying gaps are actually fixed. Caught by running the full flow with a
+real Ledger, not by reading the code.
+
+**Known limitation, not yet fixed**: `POST /agents` hardcodes reading shared
+subregistry/resolver/adapter8004 addresses from `getAgent(10158)` -- the original
+`agentns.eth` agent. Registering a new agent via this endpoint today always creates it
+under `agentns.eth`, never under the canonical `mandate.eth` deployment, regardless of
+which namespace you'd want. `agent2.mandate.eth` was never registered this way -- only
+`scripts/rebrand-onchain.ts` did that, directly. This is a real gap, not yet fixed.
+
 ## Running it
 
 ```bash

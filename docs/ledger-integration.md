@@ -7,12 +7,21 @@ with an EIP-712 signature-based approval path, a resolver only the gate can writ
 full request -> sign -> relay -> execute cycle where the approver held **zero ETH** the
 entire time.
 
-**Not yet run**: against real Ledger hardware or the Speculos emulator. Neither was
-available in the session that built this (no Docker installed to run Speculos, no
-physical device connected). `scripts/ledger-approve.ts` implements the real path -- built
-from Ledger's own reference CLI source (`github.com/LedgerHQ/device-sdk-ts`,
-`apps/ldmk-cli`), type-checked against the real published `@ledgerhq/*` types -- but has
-not itself been executed. Swapping it in is a config change, not new code: see below.
+**Verified against real hardware (2026-09-09).** `scripts/ledger-approve.ts` -- connected
+over USB (node-hid, no browser), derived the device's address, sent
+`Approval(actionId=1)` for Clear Signing, physically confirmed on the device screen, relayed
+the resulting signature on chain. `ActionApproved` and `ActionExecuted` both landed and the
+resolver record was written -- [tx `0x539d74f...`](https://sepolia.etherscan.io/tx/0x539d74fef72b17b2eaee1b1bafe520b003ccdf5f5df378a17ff85195c153cc3c).
+The gate's `approver` was rotated from the throwaway stand-in key to the real Ledger address
+(`0x5B0Fb1547704DeAA7Ba4caF614154E7184ff226d`) via `setApprover` first -- see "To actually
+run it" below.
+
+One real bug surfaced on the first attempt: `ledger-approve.ts` still had the domain name
+hardcoded to the original `"AgentNS PermissionGate"`, left over from before
+`contracts/src/PermissionGate.sol`'s domain name became a constructor parameter (see
+`docs/mandate.md`). Signed against the wrong domain, so `approveWithSignature` recovered the
+wrong address and reverted `NotApprover` -- fixed by making the domain name a script
+argument (defaults to `"Mandate PermissionGate"`, the current canonical gate).
 
 ## Why signatures, not raw transactions
 
@@ -42,10 +51,17 @@ gas, but `approveWithSignature()` is the one Ledger will actually use.
 ## The typed-data structure
 
 ```
-domain:  { name: "AgentNS PermissionGate", version: "1", chainId: 11155111, verifyingContract: <gate address> }
+domain:  { name: <the gate's domain name, e.g. "Mandate PermissionGate">, version: "1", chainId: 11155111, verifyingContract: <gate address> }
 types:   { Approval: [{ name: "actionId", type: "uint256" }] }
 message: { actionId: <the pending action's id> }
 ```
+
+The domain name isn't a fixed string -- it's a constructor parameter on `PermissionGate`
+(`docs/mandate.md`), so it's part of what has to match exactly between what you sign and
+what the target gate's `DOMAIN_SEPARATOR` was built with. Get it wrong and every signature
+recovers to the wrong address (`ledger-approve.ts <gate> <actionId> [domainName]` takes it
+as an explicit argument for exactly this reason -- learned from a real revert, not
+hypothetically).
 
 Bound to the gate's address and the chain id, so a signature can't be replayed against a
 different deployment or network. Bound to the specific `actionId`, so it can't be replayed
@@ -75,19 +91,24 @@ No browser or WebHID needed -- `@ledgerhq/device-transport-kit-node-hid` talks t
 device over USB directly from a terminal script, which is how Ledger's own `ldmk-cli`
 reference tool works.
 
-### To actually run it
+### To actually run it (this is the real sequence that worked)
 
 1. `cd scripts && npm install` (already includes the `@ledgerhq/*` packages)
 2. Connect the Ledger, unlock it, open the Ethereum app
-3. Get its address at `44'/60'/0'/0/0` (the script does this and checks it against the
-   gate's current `approver`)
-4. If it doesn't match yet: call `PermissionGate.setApprover(<ledger address>)` from the
-   *current* approver (the throwaway key in `contracts/.env`, for the existing deployment
-   in `docs/phase2-deployment.json`)
-5. Have the operator call `requestOwnershipTransfer` or `requestPermissionEscalation` to
-   create a pending action (see `phase2-ledger-demo.ts` Step 3 for the pattern)
+3. `npx tsx ledger-approve.ts <gate> <anyActionId>` once just to get the device's address
+   printed (it fails cleanly at the approver-mismatch check before signing anything --
+   safe, read-only, no transaction)
+4. **`setApprover` needs the current approver to pay its own gas**, which the throwaway
+   stand-in key doesn't have by design (it's meant to never need ETH). Send it a small
+   amount first (`cast send <throwawayAddress> --value 0.001ether --private-key
+   $DEPLOYER_PRIVATE_KEY ...`), then `cast send <gate> "setApprover(address)" <ledgerAddress>
+   --private-key $LEDGER_STANDIN_PRIVATE_KEY ...`
+5. Create a pending action -- e.g. `POST /agents/:agentId/escalate` on the backend (pass
+   `target` explicitly if the agent has no `gatedResolver` configured; its own `resolver`
+   field works if that's the one actually gated -- see `backend/data/agents.json`)
 6. `npx tsx ledger-approve.ts <gateAddress> <actionId>` -- review on the device screen,
-   confirm, done
+   confirm, done. Domain name defaults to `"Mandate PermissionGate"`; pass a third arg to
+   override for a different gate.
 
 ### If Speculos becomes available instead of physical hardware
 

@@ -112,9 +112,12 @@ Sepolia transaction. Wallet connect is a plain injected-provider flow (viem + `w
 rather than wagmi -- also the real path to hardware Clear Signing without DMK/node-hid,
 since MetaMask can back an account with a Ledger. See `docs/frontend.md`.
 
-All five build-order phases now have working code. Two manual steps remain, deliberately
-deferred rather than blocking further work: a physical Ledger tap (`docs/ledger-integration.md`)
-and the Subgraph Studio deploy (`docs/subgraph.md`).
+All five build-order phases now have working code, and both deferred manual steps are done:
+the subgraph is deployed live to Subgraph Studio (`docs/subgraph.md`), and a real physical
+Ledger has approved a real pending action end to end -- connected over USB, signed
+`Approval(actionId)` after physical confirmation on the device screen, relayed on chain,
+`ActionExecuted` landed (`docs/ledger-integration.md`). The gate's `approver` is now a real
+Ledger address, not a stand-in key.
 
 ## Build order
 

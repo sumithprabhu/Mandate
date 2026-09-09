@@ -37,8 +37,8 @@
     "subregistry": "0xea6F52BB85cf5316ecFd9Fcbe562b4eF6fcCce9b",
     "tokenId": "12574331500417930745150951692014312166842720674563136141102103973686872637441",
     "gate": "0x8DAa03bACaa88a660F29AbCeB1a72cCD0ac50637",
-    "approver": "0xbB209F3e501a13b69F30BC6f27C7E2Eaa8D3aC28",
-    "note": "mandate.eth deployment, EIP-712 domain 'Mandate PermissionGate'. Both known gaps from the agentns.eth deployment are fixed here: the gate genuinely holds custody of `tokenId` (verified via ownerOf), and `resolver` is writable ONLY by the gate (not `owner` directly) -- see docs/mandate.md."
+    "approver": "0x5B0Fb1547704DeAA7Ba4caF614154E7184ff226d",
+    "note": "mandate.eth deployment, EIP-712 domain 'Mandate PermissionGate'. Both known gaps from the agentns.eth deployment are fixed here: the gate genuinely holds custody of `tokenId` (verified via ownerOf), and `resolver` is writable ONLY by the gate (not `owner` directly) -- see docs/mandate.md. `approver` is a REAL physical Ledger device (rotated from the throwaway stand-in key via setApprover on 2026-09-09) -- see docs/ledger-integration.md for the verified end-to-end run."
   },
   "10169": {
     "agentId": 10169,
@@ -51,7 +51,7 @@
     "subregistry": "0xea6F52BB85cf5316ecFd9Fcbe562b4eF6fcCce9b",
     "tokenId": "12914604233378511217194968470333727029220150315766677847302245112977196843008",
     "gate": "0x8DAa03bACaa88a660F29AbCeB1a72cCD0ac50637",
-    "approver": "0xbB209F3e501a13b69F30BC6f27C7E2Eaa8D3aC28",
-    "note": "mandate.eth deployment, same gate as agent1.mandate.eth. Both known gaps fixed -- see docs/mandate.md."
+    "approver": "0x5B0Fb1547704DeAA7Ba4caF614154E7184ff226d",
+    "note": "mandate.eth deployment, same gate as agent1.mandate.eth, same real Ledger approver. Both known gaps fixed -- see docs/mandate.md and docs/ledger-integration.md."
   }
 }

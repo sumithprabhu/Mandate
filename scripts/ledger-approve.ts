@@ -3,17 +3,24 @@
 // identical to phase2-ledger-demo.ts's Step 4-5, except the signature comes from real
 // hardware Clear Signing instead of a throwaway local key.
 //
-// NOT YET RUN AGAINST REAL HARDWARE OR SPECULOS -- neither was available in the session
-// that wrote this (no Docker installed, no physical device connected). The API calls below
-// are transcribed from Ledger's own reference CLI (github.com/LedgerHQ/device-sdk-ts,
-// apps/ldmk-cli), not guessed, but this exact file has not been executed. See
-// docs/ledger-integration.md before running for the first time.
+// VERIFIED against real hardware (2026-09-09): connected, derived the address, signed
+// Approval(actionId=1) on device after physical confirmation, relayed on chain --
+// ActionApproved + ActionExecuted both landed, resolver record written. One real bug found
+// and fixed in that first run: the domain name here was still hardcoded to the original
+// "AgentNS PermissionGate" after the gate was redeployed with a parameterized domain (see
+// docs/mandate.md) -- signatures recovered to the wrong address until domainName became a
+// CLI arg. See docs/ledger-integration.md for the full writeup.
 //
 // Prerequisites: a Ledger device connected over USB, Ethereum app open, and its address
 // (see `mm ensv2`-style derivation or SignerEth.getAddress) already set as the gate's
 // `approver` via PermissionGate.setApprover(...).
 //
-// Usage: cd scripts && npx tsx ledger-approve.ts <permissionGateAddress> <actionId>
+// Usage: cd scripts && npx tsx ledger-approve.ts <permissionGateAddress> <actionId> [domainName]
+// domainName defaults to "Mandate PermissionGate" (the current canonical gate's domain --
+// docs/mandate.md). Pass "AgentNS PermissionGate" explicitly to target the original
+// agentns.eth gate instead -- the domain name is part of what's signed, so it must match
+// exactly what the target gate's DOMAIN_SEPARATOR was constructed with or every signature
+// recovers to the wrong address and reverts NotApprover.
 
 import { config as loadEnv } from "dotenv";
 import { createPublicClient, createWalletClient, http, type Abi, type Address, type Hex } from "viem";
@@ -37,12 +44,13 @@ const gateArtifact = JSON.parse(
 );
 
 async function main() {
-  const [gateAddressArg, actionIdArg] = process.argv.slice(2);
+  const [gateAddressArg, actionIdArg, domainNameArg] = process.argv.slice(2);
   if (!gateAddressArg || !actionIdArg) {
-    throw new Error("Usage: npx tsx ledger-approve.ts <permissionGateAddress> <actionId>");
+    throw new Error("Usage: npx tsx ledger-approve.ts <permissionGateAddress> <actionId> [domainName]");
   }
   const gateAddress = gateAddressArg as Address;
   const actionId = BigInt(actionIdArg);
+  const domainName = domainNameArg || "Mandate PermissionGate";
 
   const operatorPk = process.env.DEPLOYER_PRIVATE_KEY as Hex;
   if (!operatorPk) throw new Error("DEPLOYER_PRIVATE_KEY missing in contracts/.env");
@@ -101,7 +109,7 @@ async function main() {
 
   const typedData = {
     domain: {
-      name: "AgentNS PermissionGate",
+      name: domainName,
       version: "1",
       chainId: sepolia.id,
       verifyingContract: gateAddress,

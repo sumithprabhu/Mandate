@@ -3,7 +3,8 @@ description: >
   Mandate -- ERC-8004 identity/reputation on Sepolia (same registries and start blocks the
   Agent0 Subgraphs standard uses: thegraph.com/docs/en/subgraphs/existing-subgraphs/agent0)
   plus PermissionGate, this project's own Ledger-gated ownership-transfer and
-  permission-escalation history for the agent it protects.
+  permission-escalation history for the two agents the canonical mandate.eth gate
+  (0x8DAa03bACaa88a660F29AbCeB1a72cCD0ac50637) protects.
 schema:
   file: ./schema.graphql
 dataSources:
@@ -67,9 +68,9 @@ dataSources:
     name: PermissionGate
     network: sepolia
     source:
-      address: "0x7308fd71f0d0282465963fe692e082beabbf1a47"
+      address: "0x8DAa03bACaa88a660F29AbCeB1a72cCD0ac50637"
       abi: PermissionGate
-      startBlock: 11659623
+      startBlock: 11662495
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

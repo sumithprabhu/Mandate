@@ -84,25 +84,23 @@ implements the same flow against real Ledger hardware (device-management-kit + n
 no browser needed) -- type-checked against the real SDK but **not yet run**, since no
 device or Speculos emulator was available in this session.
 
-`subgraph/` -- schema, manifest and mappings for IdentityRegistry + ReputationRegistry +
-PermissionGate, `graph codegen` and `graph build` both passing clean against the real
-deployed ABIs. Entity shapes follow the Agent0 Subgraphs convention (The Graph's own
-standardized ERC-8004 schema, already live on Sepolia against the same registries) rather
-than inventing something one-off; `PermissionGateAction` is this project's own addition on
-top, linked to `Agent` so one query returns identity + reputation + gated-permission
-history together. See `docs/subgraph.md`. Not yet deployed to Subgraph Studio -- needs a
-Graph account and deploy key this session doesn't have; that's the next manual step.
+`subgraph/` -- **deployed live** at `https://api.studio.thegraph.com/query/1758954/mandate/v0.2.0`,
+fully synced, zero indexing errors. Entity shapes follow the Agent0 Subgraphs convention
+(The Graph's own standardized ERC-8004 schema, already live on Sepolia against the same
+registries) rather than inventing something one-off; `PermissionGateAction` is this
+project's own addition, linked to `Agent`. Tracks the canonical `mandate.eth`
+`PermissionGate` specifically, with real query output proving `gatedActions` populated for
+both agents it protects, correctly distinguished. See `docs/subgraph.md`.
 
 `backend/` -- Express + viem REST API, no database (the chain is the source of truth;
 `backend/data/agents.json` just maps known agentIds to contract addresses). Every endpoint
-live-tested on Sepolia this session with real transactions: registered a second agent
-(`agent2.agentns.eth`, agentId 10164) via `POST /agents`, requested a permission escalation,
-fetched its EIP-712 typed-data, signed it with the same throwaway key standing in for the
-Ledger, and relayed the approval through `POST .../approve` -- action flipped to `Executed`,
-resolver record written, all over HTTP. Two known gaps documented in `docs/backend.md`:
-`/transfer` won't complete for the original agent yet (the gate never received custody of
-its token) and `/escalate` targets a separate gate-only-writable demo resolver rather than
-the agent's live one (no admin rights to delegate that role without a fresh deployment).
+verified against the canonical mandate.eth deployment with real transactions: registered
+`agent3.mandate.eth` via `POST /agents` (now takes an explicit `parentAgentId`, was
+hardcoded to the original agentns.eth agent), and ran the full propose -> Clear Sign ->
+physical confirm -> relay -> subgraph-reflects-it cycle against `agent2.mandate.eth`
+end to end. See `docs/backend.md` for two real bugs a verification pass caught and fixed
+(a second stale hardcoded EIP-712 domain name, and `/escalate` not falling back to an
+agent's own gated `resolver`) -- both would have broken on camera.
 
 `frontend/` -- v1, deliberately nominal (plain forms/lists, no component library --
 real design pass comes later). Exercises every backend endpoint. Verified live in headless

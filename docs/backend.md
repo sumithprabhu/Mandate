@@ -13,7 +13,7 @@ routes don't need those passed on every request. `POST /agents` appends to it.
 | GET | `/agents` | list known agents |
 | GET | `/agents/:agentId` | one agent's directory record |
 | GET | `/agents/:agentId/profile` | subgraph query (identity + reputation + gated-action history) |
-| POST | `/agents` | register a new child agent under the project's existing `agentns.eth` namespace |
+| POST | `/agents` | register a new child agent (`parentAgentId` in the body picks which existing agent's namespace to share) |
 | POST | `/agents/:agentId/transfer` | request an ownership transfer (blocked pending approval) |
 | POST | `/agents/:agentId/escalate` | request a permission escalation (blocked pending approval) |
 | GET | `/agents/:agentId/actions/:actionId` | read a pending/executed action's on-chain state |
@@ -67,12 +67,12 @@ Both would have broken the real demo flow on the mandate.eth agents specifically
 ones where the underlying gaps are actually fixed. Caught by running the full flow with a
 real Ledger, not by reading the code.
 
-**Known limitation, not yet fixed**: `POST /agents` hardcodes reading shared
-subregistry/resolver/adapter8004 addresses from `getAgent(10158)` -- the original
-`agentns.eth` agent. Registering a new agent via this endpoint today always creates it
-under `agentns.eth`, never under the canonical `mandate.eth` deployment, regardless of
-which namespace you'd want. `agent2.mandate.eth` was never registered this way -- only
-`scripts/rebrand-onchain.ts` did that, directly. This is a real gap, not yet fixed.
+**Fixed (2026-09-10)**: `POST /agents` used to hardcode reading shared
+subregistry/resolver/adapter8004 addresses from `getAgent(10158)` -- always registered
+under `agentns.eth` regardless of intent. `parentAgentId` is now a required body field
+naming which existing agent's namespace to share. Verified: registered
+`agent3.mandate.eth` (agentId 10189) for real with `parentAgentId: 10168`, real tx hashes,
+correct addresses; `GET /agents/10169` (`agent2.mandate.eth`) confirmed fetchable.
 
 ## Running it
 

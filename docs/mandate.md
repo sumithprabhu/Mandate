@@ -46,13 +46,36 @@ understood and handled correctly.
   in `docs/registered-agents.json` and `docs/phase2-deployment.json`. Its gate still has the
   original two known gaps (no custody, resolver not actually gated) since nothing there was
   migrated.
-- The subgraph -- still indexes only the original `agentns.eth` gate and agentId `10158`
-  (`subgraph/src/permission-gate.ts`'s `KNOWN_AGENT_ID` is hardcoded per data source, a
-  documented simplification). Extending it to the new gate/agents would need either two
-  more hardcoded data sources or a `context`-parameterized mapping -- not done here, out of
-  scope for "rename the project," a reasonable follow-up if the new agents need to show up
-  in trust-profile queries too.
 - `backend/data/agents.json` -- both old and new agents are listed; nothing removed.
+
+(The subgraph *was* left pointed at the original agentns.eth gate for a while after this
+doc was first written -- fixed in a later pass, see `docs/subgraph.md`; it now tracks the
+canonical mandate.eth gate and correctly distinguishes both agents it protects.)
+
+## Verified since (2026-09-10/11)
+
+- **Ownership transfer with real hardware, end to end**: proposed a transfer of
+  `agent2.mandate.eth`'s token away from the gate via the backend, Clear Signed and
+  physically confirmed on a real connected Ledger, relayed on chain, and independently
+  confirmed `ownerOf` actually changed (`0x8DAa03bA...` -> the operator wallet). No bug
+  found -- worked cleanly. Transferred back afterward (direct operator->gate call) to
+  restore the documented demo state (gate holds custody of both agents). See
+  `docs/ledger-integration.md`.
+- **A third agent, registered through the backend, not a script**:
+  `agent3.mandate.eth` (agentId `10189`), via `POST /agents` with `parentAgentId: 10168`
+  (the endpoint used to hardcode `agentns.eth`; see `docs/backend.md`).
+- **PermissionGate and the resolver are both verified on Sepolia Etherscan.** PermissionGate
+  with full source (`forge verify-contract`); the resolver proxy linked to its
+  already-verified implementation (`PermissionedResolver`, deployed by ENS Labs) via
+  Etherscan's proxy-detection API, so `Read as Proxy` / `Write as Proxy` show the real ABI.
+  - https://sepolia.etherscan.io/address/0x8DAa03bACaa88a660F29AbCeB1a72cCD0ac50637#code
+  - https://sepolia.etherscan.io/address/0xFfeee8d04Fe487861a20073E9015dEA42D31a1A3#readProxyContract
+- **A capability/permission text record on a mandate.eth agent, confirmed genuinely
+  publicly resolvable** -- not just readable if you already know the resolver's address.
+  `agent1.mandate.eth`'s `mandate:capabilities` = `"read,transact"` resolves correctly
+  through the real Universal Resolver `resolve()` entry point (the same path any ENS
+  client would use), which also correctly reports which resolver answered. See
+  `docs/subgraph.md`.
 
 ## Full history
 

@@ -16,6 +16,24 @@ The gate's `approver` was rotated from the throwaway stand-in key to the real Le
 (`0x5B0Fb1547704DeAA7Ba4caF614154E7184ff226d`) via `setApprover` first -- see "To actually
 run it" below.
 
+**Ownership transfer verified against real hardware too (2026-09-11), not just
+escalation.** Proposed transferring `agent2.mandate.eth`'s token away from the gate via the
+backend, Clear Signed and physically confirmed on the device, relayed on chain. Worked
+cleanly on the actual transaction -- no bug found, unlike escalation's domain-name issue.
+Independently confirmed `ownerOf` actually changed (not just that the tx succeeded):
+`0x8DAa03bA...` (the gate) -> the operator wallet, [tx `0xb1067d9...`](https://sepolia.etherscan.io/tx/0xb1067d9e10d9162ed2fb6304004b8bdf90ceb435106d789eaeccb149f923140d).
+Transferred back afterward (a plain direct call, not through the gate -- the recipient of
+an ENSv2 registry token automatically inherits its management roles on transfer, including
+the one needed to move it again) to restore the documented demo state where the gate holds
+custody of both agents.
+
+**A real, repeated flakiness pattern, not a one-off**: the device going to sleep between
+operations caused the exact same silent hang (stuck at "requesting address", no error) on
+three separate occasions across two sessions. Every time, killing the stuck process and
+waking the device fixed it immediately. **For the actual filmed take, keep the device awake
+and the Ethereum app open continuously through the whole sequence** -- don't assume it'll
+still be responsive if there's a gap between rehearsal and recording.
+
 One real bug surfaced on the first attempt: `ledger-approve.ts` still had the domain name
 hardcoded to the original `"AgentNS PermissionGate"`, left over from before
 `contracts/src/PermissionGate.sol`'s domain name became a constructor parameter (see

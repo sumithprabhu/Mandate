@@ -23,7 +23,7 @@ gate, not the operator directly.
 |---|---|
 | Best Use of ENSv2 (ENS) | Agent capability/permission manifest lives as ENSv2 resolver records (Permissioned Resolver, Enhanced Access Control) -- not a display label |
 | AI Agents x Ledger (Ledger) | Ownership transfer + permission escalation are blocked pending a physical Ledger Clear Signing confirmation via the Device Management Kit |
-| Best Use of Composable/Standardized Graph Products (The Graph) | One standardized subgraph schema indexes agent registration, ownership/permission changes, and (read-only) ERC-8004 Reputation/Validation registry entries, queryable across agents in one pattern |
+| Best Use of Composable/Standardized Graph Products (The Graph) | One standardized subgraph schema indexes agent registration, ownership/permission changes, and (read-only) ERC-8004 Reputation registry entries, queryable across agents in one pattern. Validation registry entries are not indexed -- confirmed absent upstream, not skipped; see `docs/subgraph.md`. |
 | *(stretch)* Selfie Check (World) | Ties agent registration to one verified human |
 
 Explicitly out of scope: agent marketplace/discovery UI, Validation Registry gating,
@@ -47,6 +47,11 @@ multi-chain support, any token/payment flow.
 Sepolia only. ENSv2 deployment: **hackathon** (ENS Labs' dedicated ETHOnline 2026
 deployment, `--deployment hackathon` in the `mm ensv2` CLI) -- see
 `docs/deployments.json` for the full address table and verification status.
+
+## Verified contracts (source code, not just an address)
+
+- [`PermissionGate`](https://sepolia.etherscan.io/address/0x8DAa03bACaa88a660F29AbCeB1a72cCD0ac50637#code) -- full source, exact match
+- [Resolver](https://sepolia.etherscan.io/address/0xFfeee8d04Fe487861a20073E9015dEA42D31a1A3#readProxyContract) -- EIP-1967 proxy, linked to its already-verified implementation (`PermissionedResolver`, deployed by ENS Labs)
 
 ## Setup
 

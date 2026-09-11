@@ -8,6 +8,7 @@
 }
 
 .nav {
+  background: var(--bg-band);
   border-right: var(--border);
   padding: var(--space-5) var(--space-4);
   display: flex;
@@ -35,17 +36,18 @@
   padding: var(--space-2) var(--space-3);
   border-radius: var(--radius);
   text-decoration: none;
-  color: var(--parchment-50-dim);
+  color: var(--ink-dim);
   font-size: 0.9rem;
 }
 
 .nav__link:hover {
-  color: var(--parchment-50);
+  color: var(--ink);
 }
 
 .nav__link.active {
-  color: var(--parchment-50);
-  background: var(--panel-900);
+  color: var(--ink);
+  background: var(--panel-bg);
+  box-shadow: var(--panel-shadow);
 }
 
 .main {
@@ -68,7 +70,7 @@
 }
 
 .page-header__eyebrow {
-  color: var(--parchment-50-dim);
+  color: var(--ink-dim);
   font-size: 0.85rem;
   display: flex;
   align-items: center;
@@ -81,10 +83,10 @@
 
 /* Panel: the one visual container primitive. No drop shadows, ever. */
 .panel {
-  background: var(--panel-900);
+  background: var(--panel-bg);
   border: var(--border);
   border-radius: var(--radius);
-  box-shadow: var(--panel-highlight);
+  box-shadow: var(--panel-shadow);
   padding: var(--space-5);
 }
 
@@ -173,7 +175,7 @@
   align-items: center;
   gap: var(--space-2);
   font-size: 0.9rem;
-  color: var(--parchment-50-dim);
+  color: var(--ink-dim);
 }
 
 .agent-card {
@@ -196,7 +198,7 @@
   flex-direction: column;
   gap: var(--space-1);
   font-size: 0.85rem;
-  color: var(--parchment-50-dim);
+  color: var(--ink-dim);
 }
 
 .feedback-list {
@@ -211,7 +213,7 @@
 
 .agent-card__count {
   font-size: 0.8rem;
-  color: var(--parchment-50-faint);
+  color: var(--ink-faint);
 }
 
 .field {
@@ -227,29 +229,29 @@
 
 .field label {
   font-size: 0.9rem;
-  color: var(--parchment-50-dim);
+  color: var(--ink-dim);
 }
 
 .field input,
 .field select,
 .field textarea {
-  background: var(--graphite-950);
+  background: var(--surface-sunken);
   border: var(--border);
   border-radius: var(--radius);
-  color: var(--parchment-50);
+  color: var(--ink);
   padding: var(--space-3);
 }
 
 .field input:focus,
 .field select:focus,
 .field textarea:focus {
-  outline: 1px solid var(--parchment-50-dim);
+  outline: 1px solid var(--ink-dim);
   outline-offset: -1px;
 }
 
 .field__hint {
   font-size: 0.8rem;
-  color: var(--parchment-50-faint);
+  color: var(--ink-faint);
 }
 
 .radio-group {
@@ -269,8 +271,8 @@
 }
 
 .radio-option.selected {
-  border-color: var(--parchment-50-dim);
-  background: var(--graphite-950);
+  border-color: var(--ink-dim);
+  background: var(--surface-sunken);
 }
 
 .radio-option__title {
@@ -282,7 +284,7 @@
 
 .radio-option__desc {
   font-size: 0.8rem;
-  color: var(--parchment-50-dim);
+  color: var(--ink-dim);
 }
 
 .btn {
@@ -290,35 +292,36 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-2);
-  border-radius: var(--radius);
-  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-pill);
+  padding: var(--space-3) var(--space-5);
   font-size: var(--text-base);
-  font-weight: 500;
+  font-weight: 600;
   border: var(--border);
-  background: var(--panel-900);
-  color: var(--parchment-50);
+  background: var(--panel-bg);
+  color: var(--ink);
   cursor: pointer;
   width: fit-content;
   text-decoration: none;
 }
 
 .btn:hover:not(:disabled) {
-  border-color: var(--parchment-50-dim);
+  border-color: var(--ink-dim);
 }
 
 .btn:disabled {
-  color: var(--parchment-50-faint);
+  color: var(--ink-faint);
   cursor: not-allowed;
 }
 
 .btn--primary {
-  background: var(--parchment-50);
-  color: var(--graphite-950);
-  border-color: var(--parchment-50);
+  background: var(--ink);
+  color: var(--ink-inverse);
+  border-color: var(--ink);
 }
 
 .btn--primary:hover:not(:disabled) {
-  background: var(--parchment-50-dim);
+  background: var(--ink-dim);
+  border-color: var(--ink-dim);
 }
 
 table {
@@ -330,7 +333,7 @@ table {
 th {
   text-align: left;
   font-weight: 500;
-  color: var(--parchment-50-dim);
+  color: var(--ink-dim);
   padding: var(--space-2) var(--space-3);
   border-bottom: var(--border);
   font-size: 0.8rem;
@@ -378,7 +381,7 @@ tr:last-child td {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  color: var(--parchment-50-dim);
+  color: var(--ink-dim);
 }
 
 .error-state {
@@ -389,13 +392,13 @@ tr:last-child td {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  color: var(--parchment-50-dim);
+  color: var(--ink-dim);
   text-decoration: none;
   font-size: 0.9rem;
 }
 
 .link-row:hover {
-  color: var(--parchment-50);
+  color: var(--ink);
 }
 
 .action-status {
@@ -407,7 +410,7 @@ tr:last-child td {
 
 .action-status__label {
   font-size: 0.85rem;
-  color: var(--parchment-50-dim);
+  color: var(--ink-dim);
   margin-bottom: var(--space-1);
 }
 
@@ -427,7 +430,7 @@ tr:last-child td {
 }
 
 .step-list__item {
-  color: var(--parchment-50-dim);
+  color: var(--ink-dim);
 }
 
 .compare-pair {
@@ -443,7 +446,7 @@ h3 + .compare-pair {
 
 .compare-pair__value {
   padding: var(--space-3);
-  background: var(--graphite-950);
+  background: var(--surface-sunken);
   border: var(--border);
   border-radius: var(--radius);
   word-break: break-all;
@@ -451,6 +454,6 @@ h3 + .compare-pair {
 
 .compare-pair__label {
   font-size: 0.78rem;
-  color: var(--parchment-50-dim);
+  color: var(--ink-dim);
   margin-bottom: var(--space-1);
 }

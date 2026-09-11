@@ -1,24 +1,37 @@
 /* Design tokens. Single source of truth -- components reference these custom
-   properties, never raw hex values. */
+   properties, never raw hex values.
+
+   Palette pixel-sampled from the live semrush.com render (not guessed from
+   static CSS bundles, which turned out to carry unused legacy colors):
+   #ffffff page bg, #dceeeb pale mint header/hero band, #181e15 near-black
+   text and primary-button fill, #62646e secondary text, #e3e6ea borders,
+   #1d9c00 green / #ed2d2d red (their real success/error hues), fully pill
+   buttons (border-radius: 100px), Inter as the rendered body font. */
 
 :root {
   /* Color */
-  --graphite-950: #17181a;
-  --panel-900: #202225;
-  --steel-line: #34373b;
-  --parchment-50: #edeae2;
-  --parchment-50-dim: #edeae2a3; /* secondary text, 64% */
-  --parchment-50-faint: #edeae261; /* tertiary/placeholder text, 38% */
+  --bg: #ffffff;
+  --bg-band: #dceeeb; /* header / hero band, semrush's pale mint */
+  --panel-bg: #ffffff;
+  --surface-sunken: #f3f5f6; /* inputs, code/value blocks -- recessed against panel-bg */
+  --border-color: #e3e6ea;
+  --ink: #181e15;
+  --ink-dim: #62646e; /* secondary text */
+  --ink-faint: #9a9ca5; /* tertiary/placeholder text */
+  --ink-inverse: #ffffff; /* text/icons on the dark accent fill */
 
-  --brass-500: #c08a3e; /* pending/attention ONLY */
-  --brass-500-glow: #c08a3e4d;
-  --verdigris-500: #5e8b7e; /* success/confirmed ONLY */
-  --verdigris-500-glow: #5e8b7e4d;
-  --rust-500: #a85a3f; /* error/blocked ONLY */
-  --rust-500-glow: #a85a3f4d;
+  --brass-500: #b8770f; /* pending/attention ONLY */
+  --brass-500-glow: #b8770f33;
+  --verdigris-500: #1d9c00; /* success/confirmed ONLY -- semrush's real green */
+  --verdigris-500-glow: #1d9c0033;
+  --rust-500: #ed2d2d; /* error/blocked ONLY -- semrush's real red */
+  --rust-500-glow: #ed2d2d33;
+
+  --accent-ink: #181e15; /* primary button fill */
+  --accent-purple: #c190ff; /* secondary accent, used sparingly */
 
   /* Type */
-  --font-sans: "IBM Plex Sans", -apple-system, sans-serif;
+  --font-sans: "Inter", -apple-system, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, monospace;
 
   --text-base: 15px;
@@ -30,9 +43,10 @@
   --measure: 75ch;
 
   /* Shape */
-  --radius: 3px;
-  --panel-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.04);
-  --border: 1px solid var(--steel-line);
+  --radius: 12px;
+  --radius-pill: 100px;
+  --panel-shadow: 0 1px 2px rgba(24, 30, 21, 0.04), 0 4px 16px rgba(24, 30, 21, 0.05);
+  --border: 1px solid var(--border-color);
 
   /* Space (4px base unit) */
   --space-1: 4px;
@@ -52,8 +66,8 @@ html,
 body {
   margin: 0;
   padding: 0;
-  background: var(--graphite-950);
-  color: var(--parchment-50);
+  background: var(--bg);
+  color: var(--ink);
   font-family: var(--font-sans);
   font-size: var(--text-base);
   line-height: var(--leading-body);
@@ -66,7 +80,7 @@ h3,
 h4 {
   font-family: var(--font-sans);
   line-height: var(--leading-heading);
-  font-weight: 600;
+  font-weight: 700;
   margin: 0;
   text-transform: none;
   letter-spacing: normal;
@@ -88,7 +102,7 @@ p {
 }
 
 a {
-  color: var(--parchment-50);
+  color: var(--ink);
 }
 
 button,

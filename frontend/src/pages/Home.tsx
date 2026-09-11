@@ -34,43 +34,45 @@ export function HomePage() {
 
   return (
     <div className="landing">
-      <header className="landing-header">
-        <span className="landing-header__brand">Mandate</span>
-        <div className="landing-header__links">
-          <Link to="/agents" className="landing-header__link">
-            Agents
-          </Link>
-          <Link to="/trust" className="landing-header__link">
-            Trust
-          </Link>
-          <Link to="/agents" className="landing-btn landing-btn--primary">
-            Launch app
-            <ArrowRight size={16} strokeWidth={1.5} />
-          </Link>
-        </div>
-      </header>
+      <div className="landing-band">
+        <header className="landing-header">
+          <span className="landing-header__brand">Mandate</span>
+          <div className="landing-header__links">
+            <Link to="/agents" className="landing-header__link">
+              Agents
+            </Link>
+            <Link to="/trust" className="landing-header__link">
+              Trust
+            </Link>
+            <Link to="/agents" className="landing-btn landing-btn--primary">
+              Launch app
+              <ArrowRight size={16} strokeWidth={1.5} />
+            </Link>
+          </div>
+        </header>
 
-      <div className="landing-hero">
-        <div className="landing-hero__eyebrow">Sepolia testnet</div>
-        <h1>A second signature, in hardware, before an agent's owner can change.</h1>
-        <p>
-          Mandate gives on-chain agents an ERC-8004 identity and an ENS name, then puts ownership transfers and
-          permission escalations behind a PermissionGate. Nothing executes until an approver signs with a physically
-          connected Ledger.
-        </p>
-        <div className="landing-hero__actions">
-          <Link to="/agents" className="landing-btn landing-btn--primary">
-            View agents
-            <ArrowRight size={16} strokeWidth={1.5} />
-          </Link>
-          <a
-            className="landing-btn landing-btn--outline"
-            href={`https://sepolia.etherscan.io/address/${CANONICAL_GATE}`}
-            target="_blank"
-            rel="noreferrer"
-          >
-            View contract on Etherscan
-          </a>
+        <div className="landing-hero">
+          <div className="landing-hero__eyebrow">Sepolia testnet</div>
+          <h1>A second signature, in hardware, before an agent's owner can change.</h1>
+          <p>
+            Mandate gives on-chain agents an ERC-8004 identity and an ENS name, then puts ownership transfers and
+            permission escalations behind a PermissionGate. Nothing executes until an approver signs with a
+            physically connected Ledger.
+          </p>
+          <div className="landing-hero__actions">
+            <Link to="/agents" className="landing-btn landing-btn--primary">
+              View agents
+              <ArrowRight size={16} strokeWidth={1.5} />
+            </Link>
+            <a
+              className="landing-btn landing-btn--outline"
+              href={`https://sepolia.etherscan.io/address/${CANONICAL_GATE}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              View contract on Etherscan
+            </a>
+          </div>
         </div>
       </div>
 

@@ -150,34 +150,36 @@ export function AgentDetailPage() {
           </div>
         )}
         {sub && actions.length > 0 && (
-          <table>
-            <thead>
-              <tr>
-                <th>Type</th>
-                <th>Status</th>
-                <th>Requested by</th>
-                <th>Approved by</th>
-                <th>Requested at</th>
-                <th>Executed at</th>
-              </tr>
-            </thead>
-            <tbody>
-              {actions.map((a, i) => (
-                <tr key={i}>
-                  <td>{a.actionType === "OwnershipTransfer" ? "Ownership transfer" : "Permission escalation"}</td>
-                  <td>
-                    <span className={`pill pill--${a.status === "Pending" ? "pending" : a.status === "Rejected" ? "blocked" : "confirmed"}`}>
-                      {a.status}
-                    </span>
-                  </td>
-                  <td className="mono">{a.requestedBy}</td>
-                  <td className="mono">{a.approvedBy ?? "—"}</td>
-                  <td className="mono">{formatTimestamp(a.requestedAt)}</td>
-                  <td className="mono">{formatTimestamp(a.executedAt)}</td>
+          <div className="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Status</th>
+                  <th>Requested by</th>
+                  <th>Approved by</th>
+                  <th>Requested at</th>
+                  <th>Executed at</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {actions.map((a, i) => (
+                  <tr key={i}>
+                    <td>{a.actionType === "OwnershipTransfer" ? "Ownership transfer" : "Permission escalation"}</td>
+                    <td>
+                      <span className={`pill pill--${a.status === "Pending" ? "pending" : a.status === "Rejected" ? "blocked" : "confirmed"}`}>
+                        {a.status}
+                      </span>
+                    </td>
+                    <td className="mono">{a.requestedBy}</td>
+                    <td className="mono">{a.approvedBy ?? "—"}</td>
+                    <td className="mono">{formatTimestamp(a.requestedAt)}</td>
+                    <td className="mono">{formatTimestamp(a.executedAt)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
 

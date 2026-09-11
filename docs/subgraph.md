@@ -47,10 +47,31 @@ ownership-transfer actions (carried directly in the event), and a byte-search fo
 agent's DNS-encoded name inside the escalation calldata for permission-escalation actions.
 Scoped to exactly these two known agents, not a general solution -- see the code comment.
 
-ValidationRegistry is omitted, matching Agent0's own subgraph (their `ValidationRegistry`
-data source is present but commented out as "PAUSED") -- per
-`erc-8004/erc-8004-contracts`, that registry has no fixed address yet and is still under
-active revision with the TEE community (see `docs/deployments.json`).
+## ValidationRegistry: genuinely absent, verified (2026-09-10), not silently skipped
+
+This isn't a gap in this project -- there is currently no canonical ValidationRegistry
+address for Sepolia to index at all, confirmed from three independent sources:
+
+1. `erc-8004/erc-8004-contracts`'s README address tables list `IdentityRegistry` and
+   `ReputationRegistry` for every chain (deterministic CREATE2 addresses, identical across
+   all of them -- both start `0x8004...`), but **never list a `ValidationRegistry` address
+   for any chain**, Sepolia included.
+2. The repo's own Hardhat Ignition deployment module (`ignition/modules/ERC8004.ts`) *does*
+   deploy a `ValidationRegistry` contract -- so individual deployers can stand one up -- but
+   without the same singleton-factory pattern Identity/Reputation use, meaning each
+   deployment gets its own non-deterministic address. There's no one canonical instance to
+   point at, even in principle, until the spec settles.
+3. Agent0's own subgraph (`agent0lab/subgraph`, the reference standardized indexer this
+   project aligns its schema with) has a `ValidationRegistry` data source in its manifest,
+   but it's commented out as `PAUSED` **with no `address` field even in the disabled
+   block** -- confirming the standard-setters don't have one to index either.
+
+The spec itself says why: "the Validation Registry portion of the ERC-8004 spec is still
+under active update and discussion with the TEE community... will be revised and expanded
+in a follow-up spec update later this year." This is an upstream, protocol-level scope
+limit as of 2026-09-10, not something this project chose to skip -- when a canonical
+address exists, adding it is a small, mechanical change (one more data source block, same
+pattern as `ReputationRegistry`).
 
 ## The "full trust profile in one query" proof point -- real returned data
 
@@ -110,6 +131,88 @@ One query, one round trip: identity (`agentURI`, `owner`), reputation (`feedback
 `responses`, empty here since nobody's given these agents feedback), and this project's own
 gated-permission history (`gatedActions`) -- composed from three separate on-chain data
 sources into one entity graph.
+
+## Cross-agent query -- the actual "composable, spans many" proof
+
+The bounty is judged on querying *across* agents in one request, not just that individual
+per-agent queries work. Real query, one request, three agents:
+
+```graphql
+{
+  agents(where: { id_in: ["11155111:10168", "11155111:10169", "11155111:10189"] }, orderBy: agentId) {
+    agentId
+    agentURI
+    owner
+    totalFeedback
+    gatedActions(orderBy: requestedAt) {
+      actionType
+      status
+      approvedBy
+    }
+  }
+}
+```
+
+Actual response:
+
+```json
+{
+  "data": {
+    "agents": [
+      {
+        "agentId": "10168",
+        "agentURI": "https://mandate.example/agents/agent1.json",
+        "owner": "0x7621630cb63a73a194f45a3e6801b8c6a7ec2f92",
+        "totalFeedback": "0",
+        "gatedActions": [
+          { "actionType": "PermissionEscalation", "status": "Executed", "approvedBy": "0xbb209f3e501a13b69f30bc6f27c7e2eaa8d3ac28" },
+          { "actionType": "PermissionEscalation", "status": "Executed", "approvedBy": "0x5b0fb1547704deaa7ba4caf614154e7184ff226d" },
+          { "actionType": "PermissionEscalation", "status": "Executed", "approvedBy": "0x5b0fb1547704deaa7ba4caf614154e7184ff226d" }
+        ]
+      },
+      {
+        "agentId": "10169",
+        "agentURI": "https://mandate.example/agents/agent2.json",
+        "owner": "0x7621630cb63a73a194f45a3e6801b8c6a7ec2f92",
+        "totalFeedback": "0",
+        "gatedActions": [
+          { "actionType": "PermissionEscalation", "status": "Executed", "approvedBy": "0x5b0fb1547704deaa7ba4caf614154e7184ff226d" }
+        ]
+      },
+      {
+        "agentId": "10189",
+        "agentURI": "https://mandate.example/agents/agent3.json",
+        "owner": "0x7621630cb63a73a194f45a3e6801b8c6a7ec2f92",
+        "totalFeedback": "0",
+        "gatedActions": []
+      }
+    ]
+  }
+}
+```
+
+`agent1`'s first `approvedBy` (`0xbb209f...`) is the throwaway stand-in key, from before
+the gate's approver was rotated to a real Ledger -- its next two, and agent2's, show the
+real device address. Unedited: the approver-rotation history is just genuinely visible in
+the data. `agent3` (registered later, no actions yet) correctly shows an empty history
+rather than erroring or being excluded.
+
+## Capability record, publicly resolvable -- not just readable if you know the address
+
+`agent1.mandate.eth`'s `mandate:capabilities` = `"read,transact"` record, read the way any
+real ENS client actually would: through the hackathon deployment's Universal Resolver
+(`0xd26f2040D083Af1cD2962ba303F4BEa0c4faf142`) via ENSIP-10 `resolve(bytes name, bytes data)`,
+not a direct storage peek. The UR call returns both the decoded value and which resolver
+answered:
+
+```
+$ cast call 0xd26f2040D083Af1cD2962ba303F4BEa0c4faf142 "resolve(bytes,bytes)(bytes,address)" \
+    <dns-encoded "agent1.mandate.eth"> <abi-encoded text(node, "mandate:capabilities")> \
+    --rpc-url https://ethereum-sepolia-rpc.publicnode.com
+
+0x...726561642c7472616e73616374...   # decodes to "read,transact"
+0xFfeee8d04Fe487861a20073E9015dEA42D31a1A3   # correctly identifies the answering resolver
+```
 
 ## Redeploying
 

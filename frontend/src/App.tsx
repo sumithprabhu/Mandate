@@ -1,7 +1,8 @@
-import { Routes, Route, NavLink } from "react-router-dom";
+import { Routes, Route, NavLink, Link } from "react-router-dom";
 import { LayoutGrid, Network } from "lucide-react";
 
 import "./shell.css";
+import { HomePage } from "./pages/Home";
 import { AgentsPage } from "./pages/Agents";
 import { AgentDetailPage } from "./pages/AgentDetail";
 import { ProposePage } from "./pages/Propose";
@@ -13,7 +14,9 @@ export default function App() {
   return (
     <div className="shell">
       <nav className="nav">
-        <div className="nav__brand">Mandate</div>
+        <Link to="/" className="nav__brand">
+          Mandate
+        </Link>
         <div className="nav__links">
           <NavLink to="/agents" className={({ isActive }) => `nav__link${isActive ? " active" : ""}`}>
             <LayoutGrid size={16} strokeWidth={1.5} />
@@ -27,7 +30,7 @@ export default function App() {
       </nav>
       <div className="main">
         <Routes>
-          <Route path="/" element={<AgentsPage />} />
+          <Route path="/" element={<HomePage />} />
           <Route path="/agents" element={<AgentsPage />} />
           <Route path="/agents/:name" element={<AgentDetailPage />} />
           <Route path="/agents/:name/propose" element={<ProposePage />} />

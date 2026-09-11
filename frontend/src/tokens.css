@@ -1,0 +1,128 @@
+/* Design tokens. Single source of truth -- components reference these custom
+   properties, never raw hex values. */
+
+:root {
+  /* Color */
+  --graphite-950: #17181a;
+  --panel-900: #202225;
+  --steel-line: #34373b;
+  --parchment-50: #edeae2;
+  --parchment-50-dim: #edeae2a3; /* secondary text, 64% */
+  --parchment-50-faint: #edeae261; /* tertiary/placeholder text, 38% */
+
+  --brass-500: #c08a3e; /* pending/attention ONLY */
+  --brass-500-glow: #c08a3e4d;
+  --verdigris-500: #5e8b7e; /* success/confirmed ONLY */
+  --verdigris-500-glow: #5e8b7e4d;
+  --rust-500: #a85a3f; /* error/blocked ONLY */
+  --rust-500-glow: #a85a3f4d;
+
+  /* Type */
+  --font-sans: "IBM Plex Sans", -apple-system, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+
+  --text-base: 15px;
+  --text-h3: 1.5rem;
+  --text-h2: 2rem;
+  --text-h1: 2.5rem;
+  --leading-body: 1.5;
+  --leading-heading: 1.2;
+  --measure: 75ch;
+
+  /* Shape */
+  --radius: 3px;
+  --panel-highlight: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --border: 1px solid var(--steel-line);
+
+  /* Space (4px base unit) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--graphite-950);
+  color: var(--parchment-50);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+  font-weight: 400;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-sans);
+  line-height: var(--leading-heading);
+  font-weight: 600;
+  margin: 0;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+h1 {
+  font-size: var(--text-h1);
+}
+h2 {
+  font-size: var(--text-h2);
+}
+h3 {
+  font-size: var(--text-h3);
+}
+
+p {
+  max-width: var(--measure);
+  margin: 0;
+}
+
+a {
+  color: var(--parchment-50);
+}
+
+button,
+input,
+select {
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  overflow-wrap: anywhere;
+}
+
+/* Loading spinner: functional feedback, not decoration -- exempt from the "one
+   animated moment" rule below, which is about the pending/result reward states. */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.spin {
+  animation: spin 0.8s linear infinite;
+}
+
+/* Respect reduced motion globally -- individual components still define the
+   full-motion versions, this just neutralizes them. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

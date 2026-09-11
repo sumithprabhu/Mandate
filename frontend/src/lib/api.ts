@@ -23,6 +23,7 @@ export interface Agent {
   gate?: string;
   gatedResolver?: string;
   approver?: string;
+  domainName?: string;
   note?: string;
 }
 
@@ -37,22 +38,9 @@ export interface GateAction {
   status: "None" | "Pending" | "Rejected" | "Executed";
 }
 
-export interface TypedData {
-  domain: { name: string; version: string; chainId: number; verifyingContract: string };
-  types: Record<string, { name: string; type: string }[]>;
-  primaryType: string;
-  message: { actionId: string };
-}
-
 export const api = {
   listAgents: () => request<{ agents: Agent[] }>("/agents"),
   getAgent: (agentId: number | string) => request<{ agent: Agent }>(`/agents/${agentId}`),
-  getProfile: (agentId: number | string) => request<{ profile: unknown }>(`/agents/${agentId}/profile`),
-  registerAgent: (label: string, agentURI?: string) =>
-    request<{ agent: Agent; registerTx: string; bindTx: string }>("/agents", {
-      method: "POST",
-      body: JSON.stringify({ label, agentURI }),
-    }),
   requestTransfer: (agentId: number | string, newOwner: string) =>
     request<{ actionId: string; requestTx: string; status: string; note: string }>(`/agents/${agentId}/transfer`, {
       method: "POST",
@@ -65,11 +53,4 @@ export const api = {
     }),
   getAction: (agentId: number | string, actionId: string) =>
     request<{ action: GateAction }>(`/agents/${agentId}/actions/${actionId}`),
-  getTypedData: (agentId: number | string, actionId: string) =>
-    request<{ typedData: TypedData; note: string }>(`/agents/${agentId}/actions/${actionId}/typed-data`),
-  approveAction: (agentId: number | string, actionId: string, signature: string) =>
-    request<{ txHash: string; status: string }>(`/agents/${agentId}/actions/${actionId}/approve`, {
-      method: "POST",
-      body: JSON.stringify({ signature }),
-    }),
 };

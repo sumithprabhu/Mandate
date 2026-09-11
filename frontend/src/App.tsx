@@ -1,4 +1,4 @@
-import { Routes, Route, NavLink, Link } from "react-router-dom";
+import { Routes, Route, NavLink, Link, Outlet } from "react-router-dom";
 import { LayoutGrid, Network } from "lucide-react";
 
 import "./shell.css";
@@ -10,7 +10,7 @@ import { ActionPendingPage } from "./pages/ActionPending";
 import { ActionResultPage } from "./pages/ActionResult";
 import { TrustPage } from "./pages/Trust";
 
-export default function App() {
+function AppShell() {
   return (
     <div className="shell">
       <nav className="nav">
@@ -29,16 +29,24 @@ export default function App() {
         </div>
       </nav>
       <div className="main">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/agents" element={<AgentsPage />} />
-          <Route path="/agents/:name" element={<AgentDetailPage />} />
-          <Route path="/agents/:name/propose" element={<ProposePage />} />
-          <Route path="/actions/:id/pending" element={<ActionPendingPage />} />
-          <Route path="/actions/:id/result" element={<ActionResultPage />} />
-          <Route path="/trust" element={<TrustPage />} />
-        </Routes>
+        <Outlet />
       </div>
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<HomePage />} />
+      <Route element={<AppShell />}>
+        <Route path="/agents" element={<AgentsPage />} />
+        <Route path="/agents/:name" element={<AgentDetailPage />} />
+        <Route path="/agents/:name/propose" element={<ProposePage />} />
+        <Route path="/actions/:id/pending" element={<ActionPendingPage />} />
+        <Route path="/actions/:id/result" element={<ActionResultPage />} />
+        <Route path="/trust" element={<TrustPage />} />
+      </Route>
+    </Routes>
   );
 }

@@ -1,0 +1,229 @@
+/* Landing page only -- a standalone light page, not the dark app shell.
+   Colors pulled from semrush.com's live production CSS, not guessed:
+   #ff7f00 (their CTA orange), #181e15 (near-black text), #62646e/#6c6e79
+   (secondary text), #f7fbfa/#f4f5f9/#f0f1f2 (light backgrounds),
+   #d1d2d5/#dcdcdc (borders), #1d9c00/#4fae33 (green accent). */
+
+.landing {
+  --l-bg: #ffffff;
+  --l-bg-alt: #f7fbfa;
+  --l-surface: #ffffff;
+  --l-text: #181e15;
+  --l-text-dim: #62646e;
+  --l-border: #d1d2d5;
+  --l-orange: #ff7f00;
+  --l-orange-dark: #e07000;
+  --l-green: #1d9c00;
+
+  min-height: 100vh;
+  background: var(--l-bg);
+  color: var(--l-text);
+  font-family: var(--font-sans);
+  font-size: var(--text-base);
+  line-height: var(--leading-body);
+}
+
+.landing-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-5) var(--space-7);
+  border-bottom: 1px solid var(--l-border);
+}
+
+.landing-header__brand {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--l-text);
+  text-decoration: none;
+}
+
+.landing-header__links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.landing-header__link {
+  color: var(--l-text-dim);
+  text-decoration: none;
+  font-size: 0.92rem;
+}
+
+.landing-header__link:hover {
+  color: var(--l-text);
+}
+
+.landing-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border-radius: var(--radius);
+  padding: var(--space-3) var(--space-5);
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.landing-btn--primary {
+  background: var(--l-orange);
+  color: #ffffff;
+}
+.landing-btn--primary:hover {
+  background: var(--l-orange-dark);
+}
+
+.landing-btn--outline {
+  background: transparent;
+  color: var(--l-text);
+  border-color: var(--l-border);
+}
+.landing-btn--outline:hover {
+  border-color: var(--l-text-dim);
+}
+
+.landing-hero {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: var(--space-7) var(--space-7) var(--space-6);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.landing-hero__eyebrow {
+  color: var(--l-orange);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.landing-hero h1 {
+  font-size: 3rem;
+  line-height: 1.1;
+  color: var(--l-text);
+}
+
+.landing-hero p {
+  max-width: 60ch;
+  color: var(--l-text-dim);
+  font-size: 1.05rem;
+}
+
+.landing-hero__actions {
+  display: flex;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+
+.landing-section {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-7);
+}
+
+.landing-section--alt {
+  max-width: none;
+  background: var(--l-bg-alt);
+  border-top: 1px solid var(--l-border);
+  border-bottom: 1px solid var(--l-border);
+}
+
+.landing-section--alt > .landing-section-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.landing-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-4);
+}
+
+.landing-stat {
+  background: var(--l-surface);
+  border: 1px solid var(--l-border);
+  border-radius: var(--radius);
+  padding: var(--space-5);
+}
+
+.landing-stat__label {
+  color: var(--l-text-dim);
+  font-size: 0.85rem;
+  margin-bottom: var(--space-2);
+}
+
+.landing-stat__value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--l-text);
+}
+
+.landing-stat__value--text {
+  font-size: 1.3rem;
+}
+
+.landing-section h2 {
+  font-size: 1.6rem;
+  color: var(--l-text);
+  margin-bottom: var(--space-5);
+}
+
+.landing-steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+}
+
+.landing-step {
+  background: var(--l-surface);
+  border: 1px solid var(--l-border);
+  border-radius: var(--radius);
+  padding: var(--space-5);
+}
+
+.landing-step__number {
+  color: var(--l-orange);
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-bottom: var(--space-2);
+}
+
+.landing-step p {
+  color: var(--l-text-dim);
+  margin: 0;
+}
+
+.landing-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-5) var(--space-7);
+  border-top: 1px solid var(--l-border);
+  color: var(--l-text-dim);
+  font-size: 0.85rem;
+}
+
+.landing-footer a {
+  color: var(--l-text-dim);
+}
+.landing-footer a:hover {
+  color: var(--l-text);
+}
+
+@media (max-width: 800px) {
+  .landing-hero h1 {
+    font-size: 2.2rem;
+  }
+  .landing-stats,
+  .landing-steps {
+    grid-template-columns: 1fr;
+  }
+  .landing-header__links {
+    gap: var(--space-4);
+  }
+}

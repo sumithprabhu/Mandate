@@ -12,6 +12,7 @@ export interface GatedAction {
   executedAt: string | null;
   newOwner: string | null;
   escalationTarget: string | null;
+  escalationData: string | null;
 }
 
 export interface SubgraphAgent {
@@ -55,12 +56,49 @@ export async function fetchAgentsCrossQuery(agentEntityIds: string[]): Promise<S
           executedAt
           newOwner
           escalationTarget
+          escalationData
         }
       }
     }`,
     { ids: agentEntityIds }
   );
   return data.agents;
+}
+
+export interface FullGatedAction extends GatedAction {
+  id: string;
+  actionId: string;
+  escalationData: string | null;
+  agentId: string | null;
+}
+
+// Actions are scoped to a single PermissionGate contract, not to one agent -- every
+// mandate.eth agent in this demo shares one canonical gate (docs/mandate.md), so the
+// caller-supplied "which agent" hint can be wrong. This resolves the real owner via the
+// indexed event data, not the hint.
+export async function fetchGatedAction(gate: string, actionId: string): Promise<FullGatedAction | null> {
+  const data = await query<{ permissionGateAction: (FullGatedAction & { agent: { agentId: string } | null }) | null }>(
+    `query($id: ID!) {
+      permissionGateAction(id: $id) {
+        id
+        actionId
+        actionType
+        status
+        requestedBy
+        approvedBy
+        requestedAt
+        executedAt
+        newOwner
+        escalationTarget
+        escalationData
+        agent { agentId }
+      }
+    }`,
+    { id: `${gate.toLowerCase()}:${actionId}` }
+  );
+  const action = data.permissionGateAction;
+  if (!action) return null;
+  return { ...action, agentId: action.agent?.agentId ?? null };
 }
 
 export async function fetchAgent(agentEntityId: string): Promise<SubgraphAgent | null> {
@@ -81,6 +119,7 @@ export async function fetchAgent(agentEntityId: string): Promise<SubgraphAgent |
           executedAt
           newOwner
           escalationTarget
+          escalationData
         }
       }
     }`,

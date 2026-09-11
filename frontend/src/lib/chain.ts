@@ -2,7 +2,16 @@
 // public view calls. Used for live reads that must not be served from any cache: the
 // capability manifest (via the real Universal Resolver entry point, same path proven in
 // docs/subgraph.md) and current token ownership.
-import { createPublicClient, http, namehash, encodeFunctionData, decodeAbiParameters, parseAbi, type Address } from "viem";
+import {
+  createPublicClient,
+  http,
+  namehash,
+  encodeFunctionData,
+  decodeFunctionData,
+  decodeAbiParameters,
+  parseAbi,
+  type Address,
+} from "viem";
 import { sepolia } from "viem/chains";
 
 const RPC_URL = import.meta.env.VITE_SEPOLIA_RPC_URL || "https://ethereum-sepolia-rpc.publicnode.com";
@@ -46,6 +55,20 @@ export async function resolveTextRecord(name: string, key: string): Promise<{ va
     return { value: value || null, resolver };
   } catch {
     return { value: null, resolver: null };
+  }
+}
+
+const setTextAbi = parseAbi(["function setText(bytes name, string key, string value)"]);
+
+/** Decodes the real calldata a PermissionEscalation action carries -- same encoding
+ * backend/src/chain.ts's encodeSetText produces. */
+export function decodeEscalationData(data: `0x${string}`): { key: string; value: string } | null {
+  try {
+    const decoded = decodeFunctionData({ abi: setTextAbi, data });
+    const [, key, value] = decoded.args as [string, string, string];
+    return { key, value };
+  } catch {
+    return null;
   }
 }
 

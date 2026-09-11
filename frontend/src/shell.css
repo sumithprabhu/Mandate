@@ -112,6 +112,38 @@
   }
 }
 
+/* Large status LED for /actions/:id/pending -- the one deliberate animated
+   moment in the whole app. Pending pulses slowly like hardware waiting for
+   input; resolving snaps color + scale in 100ms, decisively. */
+.led {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: background-color 100ms ease-out, transform 100ms ease-out;
+}
+.led--pending {
+  background: var(--brass-500);
+  animation: led-pulse 2.2s ease-in-out infinite;
+}
+.led--confirmed {
+  background: var(--verdigris-500);
+  transform: scale(1.1);
+}
+.led--blocked {
+  background: var(--rust-500);
+  transform: scale(1.1);
+}
+@keyframes led-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 var(--brass-500-glow);
+  }
+  50% {
+    box-shadow: 0 0 28px 10px var(--brass-500-glow);
+  }
+}
+
 .status-dot {
   width: 8px;
   height: 8px;
@@ -170,6 +202,10 @@
   max-width: 480px;
 }
 
+.field + .field {
+  margin-top: var(--space-4);
+}
+
 .field label {
   font-size: 0.9rem;
   color: var(--parchment-50-dim);
@@ -220,6 +256,9 @@
 
 .radio-option__title {
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 
 .radio-option__desc {
@@ -340,11 +379,34 @@ tr:last-child td {
   color: var(--parchment-50);
 }
 
+.action-status {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  padding: var(--space-7);
+}
+
+.action-status__label {
+  font-size: 0.85rem;
+  color: var(--parchment-50-dim);
+  margin-bottom: var(--space-1);
+}
+
+.detail-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
 .compare-pair {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   gap: var(--space-4);
   align-items: center;
+}
+
+h3 + .compare-pair {
+  margin-top: var(--space-4);
 }
 
 .compare-pair__value {

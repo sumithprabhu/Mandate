@@ -94,6 +94,16 @@
   padding: var(--space-4);
 }
 
+/* Clickable panels (bento cards rendered as <a>) get a hover lift -- static
+   panels don't, so the affordance only shows up where it's true. */
+a.panel {
+  transition: box-shadow 180ms ease, transform 180ms ease;
+}
+a.panel:hover {
+  box-shadow: 0 8px 24px rgba(24, 30, 21, 0.08);
+  transform: translateY(-2px);
+}
+
 /* Bento grid: deliberate asymmetry, not uniform cards. Cells opt into a size
    class based on real content weight (e.g. activity count), not decoration. */
 .bento {
@@ -302,6 +312,7 @@
   cursor: pointer;
   width: fit-content;
   text-decoration: none;
+  transition: border-color 150ms ease, background-color 150ms ease;
 }
 
 .btn:hover:not(:disabled) {

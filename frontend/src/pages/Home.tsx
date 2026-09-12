@@ -65,6 +65,9 @@ export function HomePage() {
               <Link to="/trust" className="landing-header__link">
                 Trust
               </Link>
+              <Link to="/register" className="landing-header__link">
+                Register
+              </Link>
               <ConnectWalletButton variant="landing" />
               <MotionLink
                 to="/agents"

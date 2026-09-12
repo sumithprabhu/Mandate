@@ -242,7 +242,12 @@ a.panel:hover {
   max-width: 480px;
 }
 
-.field + .field {
+.field + .field,
+.field--spaced {
+  margin-top: var(--space-4);
+}
+
+.error-state--spaced {
   margin-top: var(--space-4);
 }
 

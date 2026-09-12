@@ -17,6 +17,14 @@ import { sepolia } from "viem/chains";
 const RPC_URL = import.meta.env.VITE_SEPOLIA_RPC_URL || "https://ethereum-sepolia-rpc.publicnode.com";
 const UNIVERSAL_RESOLVER = "0xd26f2040D083Af1cD2962ba303F4BEa0c4faf142" as Address; // hackathon deployment, docs/deployments.json
 
+// docs/deployments.json -- the corrected factory (checks Adapter8004.isController, not
+// the broken IdentityRegistry.isAuthorizedOrOwner the first deployment used).
+export const PERMISSION_GATE_FACTORY = "0xE017191538B7e1BE16a7196D3aF0af7958d94E3d" as Address;
+
+export const permissionGateFactoryAbi = parseAbi([
+  "function createGate(uint256 agentId, address approver, string domainName) returns (address)",
+]);
+
 export const publicClient = createPublicClient({ chain: sepolia, transport: http(RPC_URL) });
 
 function toHexString(bytes: Uint8Array): string {

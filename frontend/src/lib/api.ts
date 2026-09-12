@@ -41,6 +41,11 @@ export interface GateAction {
 export const api = {
   listAgents: () => request<{ agents: Agent[] }>("/agents"),
   getAgent: (agentId: number | string) => request<{ agent: Agent }>(`/agents/${agentId}`),
+  registerAgent: (label: string, owner: string, parentAgentId: number | string) =>
+    request<{ agent: Agent; registerTx: string; bindTx: string; transferTx?: string }>("/agents", {
+      method: "POST",
+      body: JSON.stringify({ label, owner, parentAgentId }),
+    }),
   requestTransfer: (agentId: number | string, newOwner: string) =>
     request<{ actionId: string; requestTx: string; status: string; note: string }>(`/agents/${agentId}/transfer`, {
       method: "POST",

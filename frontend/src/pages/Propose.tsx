@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
-import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
+import { useAccount, useBalance, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { ArrowLeftRight, KeyRound, Loader2, AlertTriangle, ArrowLeft } from "lucide-react";
 
 import { api, type Agent } from "../lib/api";
@@ -14,6 +14,7 @@ export function ProposePage() {
   const { name } = useParams<{ name: string }>();
   const navigate = useNavigate();
   const { address: connectedAddress } = useAccount();
+  const { data: balance } = useBalance({ address: connectedAddress });
 
   const [agent, setAgent] = useState<Agent | null | undefined>(undefined);
   const [selfServeGate, setSelfServeGate] = useState<Gate | null | undefined>(undefined);
@@ -170,6 +171,20 @@ export function ProposePage() {
             : "This request is blocked until the approver signs it. Nothing executes on submit."}
         </p>
       </div>
+
+      {walletDirect && balance !== undefined && balance.value === 0n && (
+        <div className="panel error-state">
+          <AlertTriangle size={20} strokeWidth={1.5} />
+          <span>
+            Your connected wallet has no Sepolia ETH, so it can't pay gas for this transaction. Get free testnet ETH
+            from a{" "}
+            <a href="https://cloud.google.com/application/web3/faucet/ethereum/sepolia" target="_blank" rel="noreferrer">
+              Sepolia faucet
+            </a>
+            .
+          </span>
+        </div>
+      )}
 
       <div className="radio-group">
         <div

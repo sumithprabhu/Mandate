@@ -86,6 +86,22 @@ type Protocol @entity(immutable: false) {
   updatedAt: BigInt!
 }
 
+# One row per deployed PermissionGate, keyed by its address. Populated when
+# PermissionGateFactory.createGate emits GateDeployed (src/permission-gate-factory.ts) --
+# every factory-deployed gate protects exactly one agent, so this is the single source of
+# attribution permission-gate.ts needs, no calldata inspection required. The one gate that
+# predates the factory (0x8DAa03bACaa88a660F29AbCeB1a72cCD0ac50637) never emitted
+# GateDeployed and has no row here; it's handled as a documented, bounded exception in the
+# mapping code instead, since it protects two agents rather than one.
+type Gate @entity(immutable: false) {
+  id: ID! # gate contract address, lowercase hex
+  agentId: BigInt!
+  domainName: String
+  operator: Bytes!
+  approver: Bytes!
+  createdAt: BigInt!
+}
+
 enum ActionType {
   OwnershipTransfer
   PermissionEscalation

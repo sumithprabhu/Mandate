@@ -6,29 +6,26 @@ import {
   ActionRejected,
   ActionExecuted,
 } from "../generated/PermissionGate/PermissionGate";
-import { PermissionGateAction } from "../generated/schema";
+import { PermissionGateAction, Gate } from "../generated/schema";
 
-// The canonical mandate.eth gate (0x8DAa03bACaa88a660F29AbCeB1a72cCD0ac50637, see
-// docs/mandate.md) protects exactly two known agents. PermissionGate itself is
-// deliberately registry-agnostic (contracts/src/PermissionGate.sol) and doesn't carry an
-// agentId in its events, so the link has to be derived out of band -- kept to the simplest
-// thing that's actually correct for these two agents, not a generic multi-agent resolver:
-//   - OwnershipTransferRequested carries `tokenId` directly -- exact match against the two
-//     known tokenIds.
-//   - PermissionEscalationRequested only carries the resolver call's raw calldata. Its
-//     `data` is always `setText(bytes dnsName, string key, string value)` (see
-//     backend/src/chain.ts encodeSetText), and the DNS wire encoding of "agent1.mandate.eth"
-//     / "agent2.mandate.eth" contains the unbroken ASCII label "agent1" / "agent2" nowhere
-//     else in that calldata -- searching for that 6-byte sequence is sufficient here.
 const CHAIN_ID = BigInt.fromI32(11155111); // Sepolia
-const AGENT1_TOKEN_ID = BigInt.fromString(
+
+// The one gate that predates PermissionGateFactory (see docs/deployments.json) -- deployed
+// before agentId existed on the contract and before GateDeployed existed as an event, so it
+// has no Gate entity the way every gate from here on will. It also happens to protect two
+// agents, not one, unlike every factory-deployed gate -- so per-ACTION disambiguation is
+// still genuinely required here, not just per-gate. This fallback is scoped to exactly this
+// one already-immutable address and cannot grow to a third case: every other gate resolves
+// generically through the Gate entity below.
+const LEGACY_GATE = "0x8daa03bacaa88a660f29abceb1a72ccd0ac50637";
+const LEGACY_AGENT1_TOKEN_ID = BigInt.fromString(
   "12574331500417930745150951692014312166842720674563136141102103973686872637441"
 );
-const AGENT2_TOKEN_ID = BigInt.fromString(
+const LEGACY_AGENT2_TOKEN_ID = BigInt.fromString(
   "12914604233378511217194968470333727029220150315766677847302245112977196843008"
 );
-const AGENT1_ID = BigInt.fromI32(10168);
-const AGENT2_ID = BigInt.fromI32(10169);
+const LEGACY_AGENT1_ID = BigInt.fromI32(10168);
+const LEGACY_AGENT2_ID = BigInt.fromI32(10169);
 
 function agentEntityId(agentId: BigInt): string {
   return CHAIN_ID.toString() + ":" + agentId.toString();
@@ -36,16 +33,6 @@ function agentEntityId(agentId: BigInt): string {
 
 function actionEntityId(gate: string, actionId: BigInt): string {
   return gate + ":" + actionId.toString();
-}
-
-// Empty string means "unknown agent" throughout -- a `BigInt | null` return here crashed
-// the AssemblyScript compiler (an internal compiler bug, not a logic error: isolated by
-// bisection, reproduces with nothing more than one function returning `BigInt | null` and
-// one call site checking it against `null`). String + length check sidesteps it.
-function agentEntityIdForTokenId(tokenId: BigInt): string {
-  if (tokenId.equals(AGENT1_TOKEN_ID)) return agentEntityId(AGENT1_ID);
-  if (tokenId.equals(AGENT2_TOKEN_ID)) return agentEntityId(AGENT2_ID);
-  return "";
 }
 
 // True if `needle` (ASCII) appears as a contiguous byte sequence anywhere in `haystack`.
@@ -65,10 +52,37 @@ function bytesContain(haystack: Bytes, needle: string): bool {
   return false;
 }
 
-function agentEntityIdForEscalationData(data: Bytes): string {
-  if (bytesContain(data, "agent1")) return agentEntityId(AGENT1_ID);
-  if (bytesContain(data, "agent2")) return agentEntityId(AGENT2_ID);
+// Empty string means "unknown agent" throughout -- a `BigInt | null` return here crashed
+// the AssemblyScript compiler (an internal compiler bug, isolated by bisection). String +
+// length check sidesteps it.
+function legacyAgentIdForTokenId(tokenId: BigInt): string {
+  if (tokenId.equals(LEGACY_AGENT1_TOKEN_ID)) return agentEntityId(LEGACY_AGENT1_ID);
+  if (tokenId.equals(LEGACY_AGENT2_TOKEN_ID)) return agentEntityId(LEGACY_AGENT2_ID);
   return "";
+}
+
+function legacyAgentIdForEscalationData(data: Bytes): string {
+  if (bytesContain(data, "agent1")) return agentEntityId(LEGACY_AGENT1_ID);
+  if (bytesContain(data, "agent2")) return agentEntityId(LEGACY_AGENT2_ID);
+  return "";
+}
+
+// The general path: every factory-deployed gate has exactly one agent, recorded on its
+// Gate entity the moment GateDeployed fired (see permission-gate-factory.ts).
+function agentIdForGate(gateAddress: string): string {
+  let gate = Gate.load(gateAddress);
+  if (gate == null) return "";
+  return agentEntityId(gate.agentId);
+}
+
+function resolveAgentIdForTransfer(gateAddress: string, tokenId: BigInt): string {
+  if (gateAddress == LEGACY_GATE) return legacyAgentIdForTokenId(tokenId);
+  return agentIdForGate(gateAddress);
+}
+
+function resolveAgentIdForEscalation(gateAddress: string, data: Bytes): string {
+  if (gateAddress == LEGACY_GATE) return legacyAgentIdForEscalationData(data);
+  return agentIdForGate(gateAddress);
 }
 
 export function handleOwnershipTransferRequested(event: OwnershipTransferRequested): void {
@@ -84,7 +98,7 @@ export function handleOwnershipTransferRequested(event: OwnershipTransferRequest
   action.requestedBy = event.params.requestedBy;
   action.requestedAt = event.block.timestamp;
   action.status = "Pending";
-  let agentId = agentEntityIdForTokenId(event.params.tokenId);
+  let agentId = resolveAgentIdForTransfer(gate, event.params.tokenId);
   if (agentId.length > 0) action.agent = agentId;
   action.save();
 }
@@ -102,7 +116,7 @@ export function handlePermissionEscalationRequested(event: PermissionEscalationR
   action.requestedBy = event.params.requestedBy;
   action.requestedAt = event.block.timestamp;
   action.status = "Pending";
-  let agentId = agentEntityIdForEscalationData(event.params.data);
+  let agentId = resolveAgentIdForEscalation(gate, event.params.data);
   if (agentId.length > 0) action.agent = agentId;
   action.save();
 }

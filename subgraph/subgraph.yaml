@@ -2,9 +2,12 @@ specVersion: 1.0.0
 description: >
   Mandate -- ERC-8004 identity/reputation on Sepolia (same registries and start blocks the
   Agent0 Subgraphs standard uses: thegraph.com/docs/en/subgraphs/existing-subgraphs/agent0)
-  plus PermissionGate, this project's own Ledger-gated ownership-transfer and
-  permission-escalation history for the two agents the canonical mandate.eth gate
-  (0x8DAa03bACaa88a660F29AbCeB1a72cCD0ac50637) protects.
+  plus PermissionGate, this project's own hardware-gated ownership-transfer and
+  permission-escalation history. PermissionGateFactory deploys one gate per self-registered
+  agent (indexed as a dynamic template, spawned per GateDeployed event -- no redeploy needed
+  per new gate); the original shared demo gate
+  (0x8DAa03bACaa88a660F29AbCeB1a72cCD0ac50637) predates the factory and is kept as its own
+  static data source.
 schema:
   file: ./schema.graphql
 dataSources:
@@ -64,6 +67,9 @@ dataSources:
           handler: handleResponseAppended
       file: ./src/reputation-registry.ts
 
+  # The one gate that predates PermissionGateFactory -- kept as a plain static data source
+  # at its known fixed address/startBlock since it never emitted GateDeployed. Shares its
+  # mapping file with the dynamic template below.
   - kind: ethereum
     name: PermissionGate
     network: sepolia
@@ -77,6 +83,59 @@ dataSources:
       language: wasm/assemblyscript
       entities:
         - PermissionGateAction
+        - Gate
+      abis:
+        - name: PermissionGate
+          file: ./abis/PermissionGate.json
+      eventHandlers:
+        - event: OwnershipTransferRequested(indexed uint256,indexed uint256,indexed address,address)
+          handler: handleOwnershipTransferRequested
+        - event: PermissionEscalationRequested(indexed uint256,indexed address,bytes,address)
+          handler: handlePermissionEscalationRequested
+        - event: ActionApproved(indexed uint256,indexed address)
+          handler: handleActionApproved
+        - event: ActionRejected(indexed uint256,indexed address)
+          handler: handleActionRejected
+        - event: ActionExecuted(indexed uint256)
+          handler: handleActionExecuted
+      file: ./src/permission-gate.ts
+
+  - kind: ethereum
+    name: PermissionGateFactory
+    network: sepolia
+    source:
+      address: "0xD02B75D4EAde44866c930e9ffBE660e01866f245"
+      abi: PermissionGateFactory
+      startBlock: 11687050
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Gate
+      abis:
+        - name: PermissionGateFactory
+          file: ./abis/PermissionGateFactory.json
+      eventHandlers:
+        - event: GateDeployed(indexed address,indexed uint256,indexed address,address,string)
+          handler: handleGateDeployed
+      file: ./src/permission-gate-factory.ts
+
+templates:
+  # Every user-registered gate going forward is a dynamic instance of this, spawned from
+  # PermissionGateFactory's GateDeployed handler -- no redeploy needed per new gate.
+  - kind: ethereum
+    name: PermissionGate
+    network: sepolia
+    source:
+      abi: PermissionGate
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - PermissionGateAction
+        - Gate
       abis:
         - name: PermissionGate
           file: ./abis/PermissionGate.json

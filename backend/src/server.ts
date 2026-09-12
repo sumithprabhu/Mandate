@@ -70,7 +70,12 @@ app.get(
 app.post(
   "/agents",
   asyncHandler(async (req, res) => {
-    const { label, agentURI, parentAgentId } = req.body as { label?: string; agentURI?: string; parentAgentId?: number | string };
+    const { label, agentURI, parentAgentId, owner } = req.body as {
+      label?: string;
+      agentURI?: string;
+      parentAgentId?: number | string;
+      owner?: Address;
+    };
     if (!label) return void res.status(400).json({ error: "label is required, e.g. 'agent3'" });
     if (parentAgentId === undefined) {
       return void res.status(400).json({
@@ -83,36 +88,52 @@ app.post(
     const parent = getAgent(parentAgentId);
     if (!parent) return void res.status(404).json({ error: `unknown parentAgentId ${parentAgentId}` });
 
+    // Self-serve path: `owner` is the caller's own connected-wallet address, not the
+    // backend's operator key. The operator still holds the subregistry permissions needed
+    // to mint the ENS label -- that ENS-issuing role is the backend's one remaining trusted
+    // job in the self-serve flow -- but the resulting identity is genuinely owned by the
+    // caller. The parent's shared legacy gate is NOT carried forward here: that gate belongs
+    // to the operator-controlled demo agents, not to an independently-owned one, which
+    // deploys its own gate via PermissionGateFactory instead (see frontend/src/pages/Register.tsx).
+    const isSelfServe = owner !== undefined;
+
     const result = await registerChildAgent(
       parent.subregistry as Address,
       parent.resolver as Address,
       parent.adapter8004 as Address,
       label,
-      agentURI || `https://mandate.example/agents/${label}.json`
+      agentURI || `https://mandate.example/agents/${label}.json`,
+      owner
     );
 
     const record = {
       agentId: Number(result.agentId),
       name: `${label}.${parent.parentName}`,
       parentName: parent.parentName,
-      owner: operator.address,
+      owner: owner || operator.address,
       identityRegistry: parent.identityRegistry,
       adapter8004: parent.adapter8004,
       resolver: parent.resolver,
       subregistry: parent.subregistry,
       tokenId: result.tokenId.toString(),
       // Carried forward from the parent record so this agent's escalations/transfers can
-      // go through the same gate its siblings use, if the namespace has one configured.
-      // The gate does NOT automatically hold custody of this new token, and the subgraph's
-      // agent-attribution lookup (subgraph/src/permission-gate.ts) only knows about the two
-      // demo agents by name -- both are known, documented limitations, not silently assumed away.
-      ...(parent.gate ? { gate: parent.gate } : {}),
-      ...(parent.approver ? { approver: parent.approver } : {}),
-      ...(parent.domainName ? { domainName: parent.domainName } : {}),
+      // go through the same gate its siblings use, if the namespace has one configured --
+      // only for backend-operated (non-self-serve) children. The gate does NOT automatically
+      // hold custody of this new token, and the subgraph's agent-attribution lookup
+      // (subgraph/src/permission-gate.ts) only knows about the two demo agents by name for
+      // this legacy gate -- both are known, documented limitations, not silently assumed away.
+      ...(!isSelfServe && parent.gate ? { gate: parent.gate } : {}),
+      ...(!isSelfServe && parent.approver ? { approver: parent.approver } : {}),
+      ...(!isSelfServe && parent.domainName ? { domainName: parent.domainName } : {}),
     };
     saveAgent(record);
 
-    res.status(201).json({ agent: record, registerTx: result.registerTx, bindTx: result.bindTx });
+    res.status(201).json({
+      agent: record,
+      registerTx: result.registerTx,
+      bindTx: result.bindTx,
+      ...(result.transferTx ? { transferTx: result.transferTx } : {}),
+    });
   })
 );
 

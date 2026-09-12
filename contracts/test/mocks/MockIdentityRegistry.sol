@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-/// @notice Minimal stand-in for the ERC-8004 IdentityRegistry's ownership-check surface,
-/// just enough for PermissionGateFactory's tests (isAuthorizedOrOwner). Not spec-complete.
+/// @notice Minimal stand-in for Adapter8004's real ownership-check surface (isController),
+/// just enough for PermissionGateFactory's tests. Not spec-complete.
 contract MockIdentityRegistry {
     mapping(uint256 => address) public ownerOf;
 
@@ -10,7 +10,7 @@ contract MockIdentityRegistry {
         ownerOf[agentId] = owner;
     }
 
-    function isAuthorizedOrOwner(address spender, uint256 agentId) external view returns (bool) {
-        return ownerOf[agentId] == spender;
+    function isController(uint256 agentId, address account) external view returns (bool) {
+        return ownerOf[agentId] == account;
     }
 }

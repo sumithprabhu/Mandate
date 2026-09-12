@@ -20,7 +20,10 @@ contract PermissionGateFactoryTest is Test {
 
     function setUp() public {
         registry = new MockIdentityRegistry();
-        factory = new PermissionGateFactory(address(registry));
+        // agentIdentityRegistry and agentAdapter8004 are separate concerns for the real
+        // contracts, but this mock stands in for both since only the adapter-shaped
+        // isController check matters for these tests.
+        factory = new PermissionGateFactory(address(registry), address(registry));
         registry.setOwner(ALICE_AGENT_ID, alice);
         registry.setOwner(BOB_AGENT_ID, bob);
     }

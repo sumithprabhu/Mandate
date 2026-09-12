@@ -70,5 +70,16 @@
     "gate": "0x8DAa03bACaa88a660F29AbCeB1a72cCD0ac50637",
     "approver": "0x5B0Fb1547704DeAA7Ba4caF614154E7184ff226d",
     "domainName": "Mandate PermissionGate"
+  },
+  "10242": {
+    "agentId": 10242,
+    "name": "selftest3.mandate.eth",
+    "parentName": "mandate.eth",
+    "owner": "0xbB209F3e501a13b69F30BC6f27C7E2Eaa8D3aC28",
+    "identityRegistry": "0x8004A818BFB912233c491871b3d84c89A494BD9e",
+    "adapter8004": "0x7621630cB63a73a194f45A3E6801B8C6A7eC2f92",
+    "resolver": "0xFfeee8d04Fe487861a20073E9015dEA42D31a1A3",
+    "subregistry": "0xea6F52BB85cf5316ecFd9Fcbe562b4eF6fcCce9b",
+    "tokenId": "34907612313696443200002674192360232827866920628151706216811434239172445995008"
   }
 }

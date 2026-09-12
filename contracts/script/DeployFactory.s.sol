@@ -8,11 +8,12 @@ import {PermissionGateFactory} from "../src/PermissionGateFactory.sol";
 /// Sepolia (see docs/deployments.json -- independently verified live on Blockscout).
 contract DeployFactory is Script {
     address constant IDENTITY_REGISTRY = 0x8004A818BFB912233c491871b3d84c89A494BD9e;
+    address constant ADAPTER_8004 = 0x7621630cB63a73a194f45A3E6801B8C6A7eC2f92;
 
     function run() external returns (address factory) {
         uint256 deployerKey = vm.envUint("DEPLOYER_PRIVATE_KEY");
         vm.startBroadcast(deployerKey);
-        factory = address(new PermissionGateFactory(IDENTITY_REGISTRY));
+        factory = address(new PermissionGateFactory(IDENTITY_REGISTRY, ADAPTER_8004));
         vm.stopBroadcast();
 
         console.log("PermissionGateFactory deployed at:", factory);

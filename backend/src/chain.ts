@@ -32,6 +32,7 @@ const resolverAbi = parseAbi(["function setText(bytes name, string key, string v
 const subregistryAbi = parseAbi([
   "function register(string label, address owner, address registry, address resolver, uint256 roleBitmap, uint64 expiry) returns (uint256)",
   "function findTokenId(string label) view returns (uint256)",
+  "function safeTransferFrom(address from, address to, uint256 id, uint256 value, bytes data)",
 ]);
 const adapter8004Abi = parseAbi([
   "function register(uint8 standard, address tokenContract, uint256 tokenId, string agentURI) returns (uint256)",
@@ -39,19 +40,34 @@ const adapter8004Abi = parseAbi([
 
 // Same bundle granted to the operator on every child name at registration -- see
 // docs/registered-agents.json and RegistryRolesLib in the ENSv2 hackathon contracts.
-const CHILD_TOKEN_ROLES = (1n << 20n) | (1n << 24n) | (1n << 16n) | (1n << 12n); // SET_SUBREGISTRY | SET_RESOLVER | RENEW | UNREGISTER
+// Includes ROLE_CAN_TRANSFER_ADMIN ((1<<28)<<128, confirmed against the real verified
+// PermissionedRegistry source -- see docs/self-serve-registration.md): without it,
+// PermissionedRegistry.safeTransferFrom reverts with TransferDisallowed regardless of
+// caller, since transfer permission is a role on the token itself, not an owner default.
+const CHILD_TOKEN_ROLES =
+  (1n << 20n) | (1n << 24n) | (1n << 16n) | (1n << 12n) | ((1n << 28n) << 128n); // SET_SUBREGISTRY | SET_RESOLVER | RENEW | UNREGISTER | CAN_TRANSFER_ADMIN
 
 /// Registers `${label}.agentns.eth` under the project's existing subregistry (set up once
 /// in scripts/register-agent.ts -- not redeployed per agent) and binds it to a fresh
 /// ERC-8004 identity via Adapter8004.
+///
+/// `owner`, if given, is the resulting token's real final owner -- e.g. a connected
+/// wallet's address for self-serve registration. It's handed the token in a third
+/// transaction *after* binding, not passed as the ENS owner directly: Adapter8004.register
+/// reverts with NotController(address,uint256) unless the operator itself still controls
+/// the token at bind time (confirmed by hitting this for real -- see
+/// docs/self-serve-registration.md), so the operator has to hold it just long enough to
+/// bind, then transfer it immediately. Omit `owner` to leave it with the operator (the
+/// legacy demo-agent behavior).
 export async function registerChildAgent(
   subregistry: Address,
   resolver: Address,
   adapter8004: Address,
   label: string,
   agentURI: string,
+  owner?: Address,
   durationSeconds = 31536000n
-): Promise<{ tokenId: bigint; agentId: bigint; registerTx: Hex; bindTx: Hex }> {
+): Promise<{ tokenId: bigint; agentId: bigint; registerTx: Hex; bindTx: Hex; transferTx?: Hex }> {
   const latestBlock = await publicClient.getBlock();
   const expiry = latestBlock.timestamp + durationSeconds;
 
@@ -81,7 +97,20 @@ export async function registerChildAgent(
   if (!bindLog || !bindLog.topics[1]) throw new Error("AgentBound event not found in bind receipt");
   const agentId = BigInt(bindLog.topics[1]);
 
-  return { tokenId, agentId, registerTx, bindTx };
+  let transferTx: Hex | undefined;
+  if (owner && owner.toLowerCase() !== operator.address.toLowerCase()) {
+    const transferSim = await publicClient.simulateContract({
+      account: operator,
+      address: subregistry,
+      abi: subregistryAbi,
+      functionName: "safeTransferFrom",
+      args: [operator.address, owner, tokenId, 1n, "0x"],
+    });
+    transferTx = await operatorClient.writeContract(transferSim.request);
+    await publicClient.waitForTransactionReceipt({ hash: transferTx });
+  }
+
+  return { tokenId, agentId, registerTx, bindTx, transferTx };
 }
 
 export function dnsEncode(name: string): Hex {

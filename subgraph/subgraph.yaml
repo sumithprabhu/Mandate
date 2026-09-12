@@ -104,9 +104,9 @@ dataSources:
     name: PermissionGateFactory
     network: sepolia
     source:
-      address: "0xD02B75D4EAde44866c930e9ffBE660e01866f245"
+      address: "0xE017191538B7e1BE16a7196D3aF0af7958d94E3d"
       abi: PermissionGateFactory
-      startBlock: 11687050
+      startBlock: 11690053
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

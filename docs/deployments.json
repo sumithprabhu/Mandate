@@ -56,12 +56,20 @@
       "address": "0x8DAa03bACaa88a660F29AbCeB1a72cCD0ac50637",
       "note": "The one shared demo gate, deployed before PermissionGateFactory existed -- 4-arg constructor (no agentId param), protects agent1/agent2/agent3.mandate.eth. Left untouched; the subgraph keeps a small hardcoded fallback for exactly this one address."
     },
-    "permissionGateFactory": {
+    "permissionGateFactoryBroken_doNotUse": {
       "address": "0xD02B75D4EAde44866c930e9ffBE660e01866f245",
       "deployedAt": "2026-09-12",
-      "constructorArgs": { "agentIdentityRegistry": "0x8004A818BFB912233c491871b3d84c89A494BD9e" },
-      "verified": "https://sepolia.etherscan.io/address/0xd02b75d4eade44866c930e9ffbe660e01866f245#code",
-      "note": "Deploys one PermissionGate per agent (5-arg constructor, includes agentId). createGate(agentId, approver, domainName) reverts unless msg.sender owns agentId per IdentityRegistry.isAuthorizedOrOwner. Confirmed live: agentIdentityRegistry() reads back the correct registry address."
+      "note": "Superseded same day -- createGate's ownership check (IdentityRegistry.isAuthorizedOrOwner) resolves to the adapter contract itself for any ENS-bound identity, never the real owner. Confirmed false even for the legacy gate, a definitely-correct owner. Every self-serve agent is adapter-bound, so this contract rejects every real registration. See docs/self-serve-registration.md. Left deployed (immutable) but unused."
+    },
+    "permissionGateFactory": {
+      "address": "0xE017191538B7e1BE16a7196D3aF0af7958d94E3d",
+      "deployedAt": "2026-09-12",
+      "constructorArgs": {
+        "agentIdentityRegistry": "0x8004A818BFB912233c491871b3d84c89A494BD9e",
+        "agentAdapter8004": "0x7621630cB63a73a194f45A3E6801B8C6A7eC2f92"
+      },
+      "verified": "https://sepolia.etherscan.io/address/0xe017191538b7e1be16a7196d3af0af7958d94e3d#code",
+      "note": "Deploys one PermissionGate per agent (5-arg constructor, includes agentId). createGate(agentId, approver, domainName) reverts unless msg.sender genuinely controls agentId per Adapter8004.isController -- the corrected check. Confirmed live end to end: agent 10242's real owner (not the operator) called createGate directly and deployed gate 0x03b5e79A6367f69b2EbD720439b20b240a8fDdFa."
     }
   }
 }

@@ -1,7 +1,7 @@
 // Direct subgraph access for the frontend -- used where a real cross-agent query is the
 // point (Trust page), not a per-agent proxy through the backend.
 const SUBGRAPH_URL =
-  import.meta.env.VITE_SUBGRAPH_URL || "https://api.studio.thegraph.com/query/1758954/mandate/v0.3.0";
+  import.meta.env.VITE_SUBGRAPH_URL || "https://api.studio.thegraph.com/query/1758954/mandate/v0.4.0";
 
 export interface GatedAction {
   actionType: "OwnershipTransfer" | "PermissionEscalation";

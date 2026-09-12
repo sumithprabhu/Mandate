@@ -20,13 +20,14 @@ contract PermissionGateTest is Test {
     address newOwner = makeAddr("newOwner");
 
     uint256 constant TOKEN_ID = 1;
+    uint256 constant AGENT_ID = 42;
 
     function setUp() public {
         (approver, approverPk) = makeAddrAndKey("approver");
         nft = new MockAgentNFT();
         registry1155 = new MockAgent1155();
         resolver = new MockResolver();
-        gate = new PermissionGate(address(nft), operator, approver, "Test PermissionGate");
+        gate = new PermissionGate(address(nft), operator, approver, "Test PermissionGate", AGENT_ID);
 
         // The agent's identity NFT lives with the gate, not the operator -- that's the point.
         nft.mint(address(gate), TOKEN_ID);
@@ -283,12 +284,24 @@ contract PermissionGateTest is Test {
 
     function test_constructor_rejectsZeroAddresses() public {
         vm.expectRevert(PermissionGate.ZeroAddress.selector);
-        new PermissionGate(address(0), operator, approver, "Test PermissionGate");
+        new PermissionGate(address(0), operator, approver, "Test PermissionGate", AGENT_ID);
 
         vm.expectRevert(PermissionGate.ZeroAddress.selector);
-        new PermissionGate(address(nft), address(0), approver, "Test PermissionGate");
+        new PermissionGate(address(nft), address(0), approver, "Test PermissionGate", AGENT_ID);
 
         vm.expectRevert(PermissionGate.ZeroAddress.selector);
-        new PermissionGate(address(nft), operator, address(0), "Test PermissionGate");
+        new PermissionGate(address(nft), operator, address(0), "Test PermissionGate", AGENT_ID);
+    }
+
+    function test_constructor_setsAgentId() public view {
+        assertEq(gate.agentId(), AGENT_ID);
+    }
+
+    // --- self-target guard on permission escalation ---
+
+    function test_permissionEscalation_rejectsSelfTarget() public {
+        vm.prank(operator);
+        vm.expectRevert(PermissionGate.SelfTargetNotAllowed.selector);
+        gate.requestPermissionEscalation(address(gate), abi.encodeCall(PermissionGate.setApprover, (attacker)));
     }
 }

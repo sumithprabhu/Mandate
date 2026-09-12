@@ -58,6 +58,12 @@ contract PermissionGate {
     address public operator;
     address public approver;
 
+    /// @dev Which ERC-8004 agent this gate protects. Not enforced against the registry here
+    /// (a factory deploying this contract is responsible for that check, see
+    /// PermissionGateFactory) -- this is purely so an indexer can attribute this gate's
+    /// actions to the right agent without inferring it from calldata.
+    uint256 public immutable agentId;
+
     /// @dev EIP-712 domain separator, bound to this contract + chain so a signature can't
     /// be replayed against a different deployment or network.
     bytes32 public immutable DOMAIN_SEPARATOR;
@@ -84,6 +90,7 @@ contract PermissionGate {
     error ZeroAddress();
     error InvalidSignatureLength();
     error InvalidSignature();
+    error SelfTargetNotAllowed();
 
     modifier onlyOperator() {
         if (msg.sender != operator) revert NotOperator();
@@ -104,13 +111,20 @@ contract PermissionGate {
     /// gate instance's domain says "AgentNS PermissionGate" because that was the project's
     /// name in the source when it was deployed, and it stays that way forever since it's
     /// immutable; see docs/mandate-deployment.json for that instance's address).
-    constructor(address _agentIdentityRegistry, address _operator, address _approver, string memory _domainName) {
+    constructor(
+        address _agentIdentityRegistry,
+        address _operator,
+        address _approver,
+        string memory _domainName,
+        uint256 _agentId
+    ) {
         if (_agentIdentityRegistry == address(0) || _operator == address(0) || _approver == address(0)) {
             revert ZeroAddress();
         }
         agentIdentityRegistry = _agentIdentityRegistry;
         operator = _operator;
         approver = _approver;
+        agentId = _agentId;
 
         DOMAIN_SEPARATOR = keccak256(
             abi.encode(
@@ -150,13 +164,17 @@ contract PermissionGate {
     }
 
     /// @notice Propose an arbitrary call against `target` (e.g. the agent's resolver, to
-    /// raise its capability manifest). Blocked until `approve`.
+    /// raise its capability manifest). Blocked until `approve`. `target` can never be this
+    /// gate itself -- otherwise an operator could smuggle a `setApprover` call through as an
+    /// "escalation" and have the approver unknowingly re-key the gate to an address the
+    /// operator controls, if it ever confirms without reading `data` closely.
     function requestPermissionEscalation(address target, bytes calldata data)
         external
         onlyOperator
         returns (uint256 actionId)
     {
         if (target == address(0)) revert ZeroAddress();
+        if (target == address(this)) revert SelfTargetNotAllowed();
         actionId = nextActionId++;
         _actions[actionId] = PendingAction({
             actionType: ActionType.PermissionEscalation,

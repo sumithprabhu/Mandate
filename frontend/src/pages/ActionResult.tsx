@@ -3,7 +3,7 @@ import { useParams, useSearchParams, Link } from "react-router-dom";
 import { ArrowRight, ArrowLeft, Loader2, AlertTriangle, ExternalLink } from "lucide-react";
 
 import { api, type Agent } from "../lib/api";
-import { fetchGatedAction, fetchAgent, type FullGatedAction } from "../lib/subgraph";
+import { fetchGatedAction, fetchAgent, fetchGateForAgent, type FullGatedAction } from "../lib/subgraph";
 import { decodeEscalationData } from "../lib/chain";
 import { subgraphEntityId } from "../lib/constants";
 
@@ -20,6 +20,7 @@ export function ActionResultPage() {
   const [hintAgent, setHintAgent] = useState<Agent | null | undefined>(undefined);
   const [action, setAction] = useState<FullGatedAction | null | undefined>(undefined);
   const [resolvedAgent, setResolvedAgent] = useState<Agent | null>(null);
+  const [resolvedGate, setResolvedGate] = useState<string | null>(null);
   const [before, setBefore] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,15 +35,27 @@ export function ActionResultPage() {
       .then(async (r) => {
         const hint = r.agents.find((a) => a.name === agentHint) ?? null;
         setHintAgent(hint);
-        if (!hint?.gate) return;
+        if (!hint) {
+          setAction(null);
+          return;
+        }
 
-        const found = await fetchGatedAction(hint.gate, id);
+        // Self-serve gates aren't recorded on the backend agent record at all (see
+        // lib/subgraph.ts::fetchGateForAgent) -- fall back to the subgraph's Gate entity.
+        const gate = hint.gate ?? (await fetchGateForAgent(hint.agentId))?.id ?? null;
+        setResolvedGate(gate);
+        if (!gate) {
+          setAction(null);
+          return;
+        }
+
+        const found = await fetchGatedAction(gate, id);
         setAction(found);
         if (!found) return;
 
-        // Actions belong to a PermissionGate, not to one agent -- every mandate.eth agent
-        // in this demo shares one canonical gate, so the URL's agent hint can point at the
-        // wrong one. Trust the indexed attribution instead where it's available.
+        // Actions belong to a PermissionGate, not to one agent -- every legacy mandate.eth
+        // agent shares one canonical gate, so the URL's agent hint can point at the wrong
+        // one. Trust the indexed attribution instead where it's available.
         const real = found.agentId ? r.agents.find((a) => String(a.agentId) === found.agentId) ?? hint : hint;
         setResolvedAgent(real);
 
@@ -53,7 +66,7 @@ export function ActionResultPage() {
         const older = sameType[idx + 1];
 
         if (found.actionType === "OwnershipTransfer") {
-          setBefore(older?.newOwner ?? real.gate ?? null);
+          setBefore(older?.newOwner ?? gate ?? null);
         } else if (found.escalationData) {
           const olderDecoded = older?.escalationData ? decodeEscalationData(older.escalationData as `0x${string}`) : null;
           setBefore(olderDecoded?.value ?? null);
@@ -148,8 +161,8 @@ export function ActionResultPage() {
         </div>
       </div>
 
-      {agent.gate && (
-        <a className="link-row" href={`https://sepolia.etherscan.io/address/${agent.gate}`} target="_blank" rel="noreferrer">
+      {resolvedGate && (
+        <a className="link-row" href={`https://sepolia.etherscan.io/address/${resolvedGate}`} target="_blank" rel="noreferrer">
           View the PermissionGate on Etherscan
           <ExternalLink size={14} strokeWidth={1.5} />
         </a>

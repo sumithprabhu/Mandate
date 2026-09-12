@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams, Link } from "react-router-dom";
 import { Loader2, AlertTriangle, ArrowLeft } from "lucide-react";
 
-import { api, type Agent, type GateAction } from "../lib/api";
+import { api, type Agent } from "../lib/api";
+import { fetchGateForAgent } from "../lib/subgraph";
+import { readGateAction, type OnChainAction } from "../lib/chain";
 
 const POLL_MS = 3000;
 const RESOLVE_DELAY_MS = 900;
@@ -18,7 +20,8 @@ export function ActionPendingPage() {
   const navigate = useNavigate();
 
   const [agent, setAgent] = useState<Agent | null | undefined>(undefined);
-  const [action, setAction] = useState<GateAction | null>(null);
+  const [gateAddress, setGateAddress] = useState<`0x${string}` | null | undefined>(undefined);
+  const [action, setAction] = useState<OnChainAction | null>(null);
   const [error, setError] = useState<string | null>(null);
   const resolvedRef = useRef(false);
 
@@ -29,20 +32,35 @@ export function ActionPendingPage() {
     }
     api
       .listAgents()
-      .then((r) => setAgent(r.agents.find((a) => a.name === agentName) ?? null))
+      .then(async (r) => {
+        const found = r.agents.find((a) => a.name === agentName) ?? null;
+        setAgent(found);
+        if (found?.gate) {
+          setGateAddress(found.gate as `0x${string}`);
+        } else if (found) {
+          const gate = await fetchGateForAgent(found.agentId);
+          setGateAddress((gate?.id as `0x${string}`) ?? null);
+        } else {
+          setGateAddress(null);
+        }
+      })
       .catch((e) => setError(e.message));
   }, [agentName]);
 
+  // Reads the gate's action directly on chain -- a plain public view call works
+  // identically for the legacy shared gate and any self-serve gate, unlike the backend's
+  // getAction endpoint, which requires an agent record with a `gate` field self-serve
+  // agents deliberately don't have (see lib/subgraph.ts::fetchGateForAgent).
   useEffect(() => {
-    if (!agent || !id) return;
+    if (!gateAddress || !id) return;
 
     let cancelled = false;
     async function poll() {
       try {
-        const r = await api.getAction(agent!.agentId, id!);
+        const result = await readGateAction(gateAddress!, id!);
         if (cancelled) return;
-        setAction(r.action);
-        if (r.action.status !== "Pending" && !resolvedRef.current) {
+        setAction(result);
+        if (result.status !== "Pending" && !resolvedRef.current) {
           resolvedRef.current = true;
           setTimeout(() => {
             if (!cancelled) navigate(`/actions/${id}/result?agent=${agentName}`);
@@ -61,7 +79,7 @@ export function ActionPendingPage() {
       cancelled = true;
       clearInterval(interval);
     };
-  }, [agent, id, agentName, navigate]);
+  }, [gateAddress, id, agentName, navigate]);
 
   if (error) {
     return (
@@ -72,7 +90,24 @@ export function ActionPendingPage() {
     );
   }
 
-  if (agent === undefined || agent === null || !action) {
+  if (agent === undefined || agent === null || gateAddress === undefined) {
+    return (
+      <div className="panel empty-state">
+        <Loader2 size={20} strokeWidth={1.5} className="spin" />
+        <span>Loading action status.</span>
+      </div>
+    );
+  }
+
+  if (gateAddress === null) {
+    return (
+      <div className="panel empty-state">
+        <span>{agent.name} has no PermissionGate configured -- there's no action to show.</span>
+      </div>
+    );
+  }
+
+  if (!action) {
     return (
       <div className="panel empty-state">
         <Loader2 size={20} strokeWidth={1.5} className="spin" />

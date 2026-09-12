@@ -101,6 +101,35 @@ export async function fetchGatedAction(gate: string, actionId: string): Promise<
   return { ...action, agentId: action.agent?.agentId ?? null };
 }
 
+export interface Gate {
+  id: string;
+  agentId: string;
+  domainName: string | null;
+  operator: string;
+  approver: string;
+}
+
+// Self-serve gates (Phase 4) are deliberately NOT recorded in the backend's agent
+// directory -- the subgraph's Gate entity (indexed off the real GateDeployed event) is the
+// only place to find one. Legacy demo agents still carry `agent.gate` in the backend
+// record instead; callers check that first and only fall back to this for agents that
+// don't have one.
+export async function fetchGateForAgent(agentId: number | string): Promise<Gate | null> {
+  const data = await query<{ gates: Gate[] }>(
+    `query($agentId: BigInt!) {
+      gates(where: { agentId: $agentId }, first: 1) {
+        id
+        agentId
+        domainName
+        operator
+        approver
+      }
+    }`,
+    { agentId: String(agentId) }
+  );
+  return data.gates[0] ?? null;
+}
+
 export async function fetchAgent(agentEntityId: string): Promise<SubgraphAgent | null> {
   const data = await query<{ agent: SubgraphAgent | null }>(
     `query($id: ID!) {

@@ -80,6 +80,72 @@ export function decodeEscalationData(data: `0x${string}`): { key: string; value:
   }
 }
 
+/** Encodes the exact setText calldata a permission-escalation request carries -- same
+ * encoding backend/src/chain.ts's encodeSetText produces, for the connected-wallet path. */
+export function encodeSetText(agentName: string, key: string, value: string): `0x${string}` {
+  return encodeFunctionData({
+    abi: setTextAbi,
+    functionName: "setText",
+    args: [dnsEncode(agentName), key, value],
+  });
+}
+
+const erc1155TransferAbi = parseAbi([
+  "function safeTransferFrom(address from, address to, uint256 id, uint256 value, bytes data)",
+]);
+
+/** Encodes the ERC-1155 transfer a gate runs on approval -- the shape real agent
+ * registrations use (see contracts/src/PermissionGate.sol's contract-level note). */
+export function encodeErc1155TransferCalldata(gate: Address, to: Address, tokenId: string): `0x${string}` {
+  return encodeFunctionData({
+    abi: erc1155TransferAbi,
+    functionName: "safeTransferFrom",
+    args: [gate, to, BigInt(tokenId), 1n, "0x"],
+  });
+}
+
+export const permissionGateAbi = parseAbi([
+  "function requestOwnershipTransfer(address registry, uint256 tokenId, address newOwner, bytes transferCalldata) returns (uint256)",
+  "function requestPermissionEscalation(address target, bytes data) returns (uint256)",
+]);
+
+// getAction returns a single PendingAction struct (one tuple), not 8 separate values --
+// the parenthesized tuple syntax below is required for parseAbi to decode it correctly.
+const getActionAbi = parseAbi([
+  "function getAction(uint256 actionId) view returns ((uint8 actionType, address target, bytes data, address newOwner, uint256 tokenId, address requestedBy, uint256 requestedAt, uint8 status) action)",
+]);
+
+const ACTION_TYPES = ["OwnershipTransfer", "PermissionEscalation"] as const;
+const ACTION_STATUSES = ["None", "Pending", "Rejected", "Executed"] as const;
+
+export interface OnChainAction {
+  actionType: (typeof ACTION_TYPES)[number];
+  requestedBy: Address;
+  requestedAt: string;
+  status: (typeof ACTION_STATUSES)[number];
+}
+
+/** Reads a gate's action directly on chain -- works uniformly for the legacy shared gate
+ * and any self-serve gate, since it's a plain public view call with no backend dependency.
+ * Self-serve gates aren't recorded in the backend's agent directory at all (see
+ * frontend/src/lib/subgraph.ts::fetchGateForAgent), so polling through the backend's
+ * getAction endpoint -- which requires an agent record with a `gate` field -- doesn't work
+ * for them; this does. */
+export async function readGateAction(gate: Address, actionId: string): Promise<OnChainAction> {
+  const action = await publicClient.readContract({
+    address: gate,
+    abi: getActionAbi,
+    functionName: "getAction",
+    args: [BigInt(actionId)],
+  });
+  return {
+    actionType: ACTION_TYPES[action.actionType],
+    requestedBy: action.requestedBy,
+    requestedAt: action.requestedAt.toString(),
+    status: ACTION_STATUSES[action.status],
+  };
+}
+
 const ownerOfAbi = parseAbi(["function ownerOf(uint256 tokenId) view returns (address)"]);
 
 /** Live ownerOf read against the registry actually holding the token -- not the

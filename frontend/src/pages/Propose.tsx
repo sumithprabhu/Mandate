@@ -1,16 +1,22 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
+import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { ArrowLeftRight, KeyRound, Loader2, AlertTriangle, ArrowLeft } from "lucide-react";
 
 import { api, type Agent } from "../lib/api";
+import { fetchGateForAgent, type Gate } from "../lib/subgraph";
+import { permissionGateAbi, encodeErc1155TransferCalldata, encodeSetText } from "../lib/chain";
+import { ConnectWalletButton } from "../components/ConnectWalletButton";
 
 type ActionKind = "transfer" | "escalate";
 
 export function ProposePage() {
   const { name } = useParams<{ name: string }>();
   const navigate = useNavigate();
+  const { address: connectedAddress } = useAccount();
 
   const [agent, setAgent] = useState<Agent | null | undefined>(undefined);
+  const [selfServeGate, setSelfServeGate] = useState<Gate | null | undefined>(undefined);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [kind, setKind] = useState<ActionKind>("transfer");
   const [newOwner, setNewOwner] = useState("");
@@ -19,12 +25,32 @@ export function ProposePage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  const { writeContract, data: txHash, isPending: isTxPending, error: writeError } = useWriteContract();
+  const { data: receipt, isLoading: isTxConfirming } = useWaitForTransactionReceipt({ hash: txHash });
+
   useEffect(() => {
     api
       .listAgents()
-      .then((r) => setAgent(r.agents.find((a) => a.name === name) ?? null))
+      .then(async (r) => {
+        const found = r.agents.find((a) => a.name === name) ?? null;
+        setAgent(found);
+        if (found && !found.gate) {
+          setSelfServeGate(await fetchGateForAgent(found.agentId));
+        } else {
+          setSelfServeGate(null);
+        }
+      })
       .catch((e) => setLoadError(e.message));
   }, [name]);
+
+  useEffect(() => {
+    if (!receipt || !agent) return;
+    const gateAddress = (agent.gate ?? selfServeGate?.id ?? "").toLowerCase();
+    const log = receipt.logs.find((l) => l.address.toLowerCase() === gateAddress);
+    if (!log || !log.topics[1]) return;
+    const actionId = BigInt(log.topics[1]).toString();
+    navigate(`/actions/${actionId}/pending?agent=${agent.name}`);
+  }, [receipt, agent, selfServeGate, navigate]);
 
   if (loadError) {
     return (
@@ -35,7 +61,7 @@ export function ProposePage() {
     );
   }
 
-  if (agent === undefined) {
+  if (agent === undefined || selfServeGate === undefined) {
     return (
       <div className="panel empty-state">
         <Loader2 size={20} strokeWidth={1.5} className="spin" />
@@ -52,7 +78,10 @@ export function ProposePage() {
     );
   }
 
-  if (!agent.gate) {
+  const walletDirect = !agent.gate && !!selfServeGate;
+  const gateAddress = agent.gate ?? selfServeGate?.id;
+
+  if (!gateAddress) {
     return (
       <div className="panel empty-state">
         <span>{agent.name} has no PermissionGate configured. Actions cannot be proposed for it.</span>
@@ -60,7 +89,21 @@ export function ProposePage() {
     );
   }
 
-  async function submit() {
+  if (walletDirect && selfServeGate && connectedAddress?.toLowerCase() !== selfServeGate.operator.toLowerCase()) {
+    return (
+      <div className="panel empty-state">
+        <span>
+          This agent's gate only accepts proposals from its operator (<span className="mono">{selfServeGate.operator}</span>
+          ). Connect that wallet to propose an action.
+        </span>
+        <div className="page-header__actions">
+          <ConnectWalletButton />
+        </div>
+      </div>
+    );
+  }
+
+  async function submitLegacy() {
     setSubmitError(null);
     setSubmitting(true);
     try {
@@ -79,6 +122,38 @@ export function ProposePage() {
     }
   }
 
+  function submitWalletDirect() {
+    setSubmitError(null);
+    const gate = gateAddress as `0x${string}`;
+    try {
+      if (kind === "transfer") {
+        if (!newOwner) throw new Error("New owner address is required.");
+        const transferCalldata = encodeErc1155TransferCalldata(gate, newOwner as `0x${string}`, agent!.tokenId);
+        writeContract({
+          address: gate,
+          abi: permissionGateAbi,
+          functionName: "requestOwnershipTransfer",
+          args: [agent!.subregistry as `0x${string}`, BigInt(agent!.tokenId), newOwner as `0x${string}`, transferCalldata],
+        });
+      } else {
+        if (!key || !value) throw new Error("Record key and value are both required.");
+        const data = encodeSetText(agent!.name, key, value);
+        writeContract({
+          address: gate,
+          abi: permissionGateAbi,
+          functionName: "requestPermissionEscalation",
+          args: [agent!.resolver as `0x${string}`, data],
+        });
+      }
+    } catch (e) {
+      setSubmitError(e instanceof Error ? e.message : String(e));
+    }
+  }
+
+  const submit = walletDirect ? submitWalletDirect : submitLegacy;
+  const isSubmitting = walletDirect ? isTxPending || isTxConfirming : submitting;
+  const error = submitError || writeError?.message;
+
   return (
     <>
       <Link to={`/agents/${agent.name}`} className="link-row">
@@ -89,7 +164,11 @@ export function ProposePage() {
       <div className="page-header">
         <div className="page-header__eyebrow">Propose an action</div>
         <h1>{agent.name}</h1>
-        <p>This request is blocked until the approver signs it. Nothing executes on submit.</p>
+        <p>
+          {walletDirect
+            ? "This request is signed by your own wallet and blocked until the approver signs too. Nothing executes on submit."
+            : "This request is blocked until the approver signs it. Nothing executes on submit."}
+        </p>
       </div>
 
       <div className="radio-group">
@@ -143,16 +222,16 @@ export function ProposePage() {
         )}
       </div>
 
-      {submitError && (
+      {error && (
         <div className="panel error-state">
           <AlertTriangle size={20} strokeWidth={1.5} />
-          <span>{submitError}</span>
+          <span>{error}</span>
         </div>
       )}
 
       <div className="page-header__actions">
-        <button className="btn btn--primary" onClick={submit} disabled={submitting}>
-          {submitting && <Loader2 size={16} strokeWidth={1.5} className="spin" />}
+        <button className="btn btn--primary" onClick={submit} disabled={isSubmitting}>
+          {isSubmitting && <Loader2 size={16} strokeWidth={1.5} className="spin" />}
           {kind === "transfer" ? "Propose transfer" : "Propose escalation"}
         </button>
       </div>

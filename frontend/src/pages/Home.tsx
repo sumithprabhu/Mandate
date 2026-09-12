@@ -8,6 +8,7 @@ import { fetchAgentsCrossQuery } from "../lib/subgraph";
 import { subgraphEntityId } from "../lib/constants";
 import { AnimatedCounter } from "../components/AnimatedCounter";
 import { LivePreviewCard } from "../components/LivePreviewCard";
+import { ConnectWalletButton } from "../components/ConnectWalletButton";
 import "../landing.css";
 
 const CANONICAL_GATE = "0x8DAa03bACaa88a660F29AbCeB1a72cCD0ac50637";
@@ -64,6 +65,7 @@ export function HomePage() {
               <Link to="/trust" className="landing-header__link">
                 Trust
               </Link>
+              <ConnectWalletButton variant="landing" />
               <MotionLink
                 to="/agents"
                 className="landing-btn landing-btn--primary"

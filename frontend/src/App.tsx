@@ -2,6 +2,7 @@ import { Routes, Route, NavLink, Link, Outlet } from "react-router-dom";
 import { LayoutGrid, Network } from "lucide-react";
 
 import "./shell.css";
+import { ConnectWalletButton } from "./components/ConnectWalletButton";
 import { HomePage } from "./pages/Home";
 import { AgentsPage } from "./pages/Agents";
 import { AgentDetailPage } from "./pages/AgentDetail";
@@ -26,6 +27,9 @@ function AppShell() {
             <Network size={16} strokeWidth={1.5} />
             Trust
           </NavLink>
+        </div>
+        <div className="nav__wallet">
+          <ConnectWalletButton />
         </div>
       </nav>
       <div className="main">

@@ -29,6 +29,15 @@
   gap: var(--space-1);
 }
 
+.nav__wallet {
+  margin-top: auto;
+}
+
+.nav__wallet .btn {
+  width: 100%;
+  justify-content: flex-start;
+}
+
 .nav__link {
   display: flex;
   align-items: center;

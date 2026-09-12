@@ -107,7 +107,30 @@ export function encodeErc1155TransferCalldata(gate: Address, to: Address, tokenI
 export const permissionGateAbi = parseAbi([
   "function requestOwnershipTransfer(address registry, uint256 tokenId, address newOwner, bytes transferCalldata) returns (uint256)",
   "function requestPermissionEscalation(address target, bytes data) returns (uint256)",
+  "function approveWithSignature(uint256 actionId, bytes signature)",
+  "function reject(uint256 actionId)",
 ]);
+
+/** Same EIP-712 struct backend/src/chain.ts's buildApprovalTypedData constructs (and
+ * scripts/ledger-approve.ts duplicates for the Ledger path) -- the domain is bound to a
+ * specific gate + chain so a signature can't be replayed elsewhere. viem's signTypedData
+ * infers the EIP712Domain type from `domain` itself, so it's omitted from `types` here
+ * (unlike the two Node-side copies, which build the digest by hand and need it explicit). */
+export function buildApprovalTypedData(gate: Address, actionId: string, domainName: string) {
+  return {
+    domain: {
+      name: domainName,
+      version: "1",
+      chainId: sepolia.id,
+      verifyingContract: gate,
+    },
+    types: {
+      Approval: [{ name: "actionId", type: "uint256" }],
+    } as const,
+    primaryType: "Approval" as const,
+    message: { actionId: BigInt(actionId) },
+  };
+}
 
 // getAction returns a single PendingAction struct (one tuple), not 8 separate values --
 // the parenthesized tuple syntax below is required for parseAbi to decode it correctly.

@@ -90,6 +90,11 @@
   margin-top: var(--space-2);
 }
 
+.button-row {
+  display: flex;
+  gap: var(--space-3);
+}
+
 /* Panel: the one visual container primitive. No drop shadows, ever. */
 .panel {
   background: var(--panel-bg);

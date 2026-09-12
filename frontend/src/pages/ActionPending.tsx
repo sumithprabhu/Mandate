@@ -1,10 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams, useSearchParams, Link } from "react-router-dom";
+import { useAccount } from "wagmi";
 import { Loader2, AlertTriangle, ArrowLeft } from "lucide-react";
 
 import { api, type Agent } from "../lib/api";
 import { fetchGateForAgent } from "../lib/subgraph";
 import { readGateAction, type OnChainAction } from "../lib/chain";
+import { ApprovePanel } from "../components/ApprovePanel";
+
+interface GateInfo {
+  address: `0x${string}`;
+  approver: string;
+  domainName: string;
+}
 
 const POLL_MS = 3000;
 const RESOLVE_DELAY_MS = 900;
@@ -19,8 +27,10 @@ export function ActionPendingPage() {
   const agentName = params.get("agent");
   const navigate = useNavigate();
 
+  const { address: connectedAddress } = useAccount();
+
   const [agent, setAgent] = useState<Agent | null | undefined>(undefined);
-  const [gateAddress, setGateAddress] = useState<`0x${string}` | null | undefined>(undefined);
+  const [gateInfo, setGateInfo] = useState<GateInfo | null | undefined>(undefined);
   const [action, setAction] = useState<OnChainAction | null>(null);
   const [error, setError] = useState<string | null>(null);
   const resolvedRef = useRef(false);
@@ -35,17 +45,21 @@ export function ActionPendingPage() {
       .then(async (r) => {
         const found = r.agents.find((a) => a.name === agentName) ?? null;
         setAgent(found);
-        if (found?.gate) {
-          setGateAddress(found.gate as `0x${string}`);
+        if (found?.gate && found.approver && found.domainName) {
+          setGateInfo({ address: found.gate as `0x${string}`, approver: found.approver, domainName: found.domainName });
         } else if (found) {
           const gate = await fetchGateForAgent(found.agentId);
-          setGateAddress((gate?.id as `0x${string}`) ?? null);
+          setGateInfo(
+            gate ? { address: gate.id as `0x${string}`, approver: gate.approver, domainName: gate.domainName ?? found.name } : null
+          );
         } else {
-          setGateAddress(null);
+          setGateInfo(null);
         }
       })
       .catch((e) => setError(e.message));
   }, [agentName]);
+
+  const gateAddress = gateInfo?.address;
 
   // Reads the gate's action directly on chain -- a plain public view call works
   // identically for the legacy shared gate and any self-serve gate, unlike the backend's
@@ -90,7 +104,7 @@ export function ActionPendingPage() {
     );
   }
 
-  if (agent === undefined || agent === null || gateAddress === undefined) {
+  if (agent === undefined || agent === null || gateInfo === undefined) {
     return (
       <div className="panel empty-state">
         <Loader2 size={20} strokeWidth={1.5} className="spin" />
@@ -99,7 +113,7 @@ export function ActionPendingPage() {
     );
   }
 
-  if (gateAddress === null) {
+  if (gateInfo === null) {
     return (
       <div className="panel empty-state">
         <span>{agent.name} has no PermissionGate configured -- there's no action to show.</span>
@@ -163,6 +177,10 @@ export function ActionPendingPage() {
           <div>{agent.name}</div>
         </div>
       </div>
+
+      {action.status === "Pending" && connectedAddress?.toLowerCase() === gateInfo.approver.toLowerCase() && (
+        <ApprovePanel gate={gateInfo.address} actionId={id!} domainName={gateInfo.domainName} />
+      )}
     </>
   );
 }

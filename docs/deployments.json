@@ -50,5 +50,18 @@
       "ValidationRegistry": null
     },
     "note": "IdentityRegistry independently verified live on Blockscout 2026-09-08: ERC1967Proxy -> IdentityRegistryUpgradeable, ERC-721 'AgentIdentity' (AGENT), 1462 holders, first tx 2026-01-06 (matches the Jan 2026 mainnet launch). ReputationRegistry not yet independently re-verified. ValidationRegistry has no published address -- per erc-8004/erc-8004-contracts README, that registry is still under active revision with the TEE community. Subgraph should treat it as optional/absent until an address surfaces. Source: https://github.com/erc-8004/erc-8004-contracts (raw README, fetched 2026-09-08)."
+  },
+  "mandate": {
+    "legacyPermissionGate": {
+      "address": "0x8DAa03bACaa88a660F29AbCeB1a72cCD0ac50637",
+      "note": "The one shared demo gate, deployed before PermissionGateFactory existed -- 4-arg constructor (no agentId param), protects agent1/agent2/agent3.mandate.eth. Left untouched; the subgraph keeps a small hardcoded fallback for exactly this one address."
+    },
+    "permissionGateFactory": {
+      "address": "0xD02B75D4EAde44866c930e9ffBE660e01866f245",
+      "deployedAt": "2026-09-12",
+      "constructorArgs": { "agentIdentityRegistry": "0x8004A818BFB912233c491871b3d84c89A494BD9e" },
+      "verified": "https://sepolia.etherscan.io/address/0xd02b75d4eade44866c930e9ffbe660e01866f245#code",
+      "note": "Deploys one PermissionGate per agent (5-arg constructor, includes agentId). createGate(agentId, approver, domainName) reverts unless msg.sender owns agentId per IdentityRegistry.isAuthorizedOrOwner. Confirmed live: agentIdentityRegistry() reads back the correct registry address."
+    }
   }
 }

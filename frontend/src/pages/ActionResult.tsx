@@ -26,7 +26,7 @@ export function ActionResultPage() {
 
   useEffect(() => {
     if (!agentHint || !id) {
-      setError("No agent specified for this action — reload from the agent's page.");
+      setError("No agent specified for this action. Reload from the agent's page.");
       return;
     }
 

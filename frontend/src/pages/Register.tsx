@@ -69,7 +69,7 @@ export function RegisterPage() {
         <h1>Register an agent</h1>
         <p>
           Every step below is signed by your own connected wallet, not a backend key. The only thing done on your
-          behalf is binding the ENS name — everything that touches ownership or approval is yours.
+          behalf is binding the ENS name. Everything that touches ownership or approval is yours.
         </p>
       </div>
 
@@ -128,7 +128,7 @@ export function RegisterPage() {
         <div className="panel">
           <h3>2. Deploy your gate</h3>
           <p>
-            {agentName} is registered. Now name an approver — a separate address, ideally a hardware wallet, that
+            {agentName} is registered. Now name an approver: a separate address, ideally a hardware wallet, that
             must sign off before this agent's ownership or permissions can change.
           </p>
           <div className="field field--spaced">

@@ -2,6 +2,7 @@ import { Routes, Route, Link, Outlet, useLocation } from "react-router-dom";
 import { UserPlus } from "lucide-react";
 
 import "./shell.css";
+import { Logo } from "./components/Logo";
 import { ConnectWalletButton } from "./components/ConnectWalletButton";
 import { HomePage } from "./pages/Home";
 import { AgentsPage } from "./pages/Agents";
@@ -18,6 +19,7 @@ function AppShell() {
       <nav className="app-nav">
         <div className="app-nav__brand">
           <Link to="/agents" className="app-nav__logo">
+            <Logo size={22} />
             Mandate
           </Link>
           <span className="nav__network">Sepolia</span>

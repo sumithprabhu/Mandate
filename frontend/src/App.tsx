@@ -1,5 +1,5 @@
-import { Routes, Route, NavLink, Link, Outlet } from "react-router-dom";
-import { LayoutGrid, UserPlus } from "lucide-react";
+import { Routes, Route, Link, Outlet, useLocation } from "react-router-dom";
+import { UserPlus } from "lucide-react";
 
 import "./shell.css";
 import { ConnectWalletButton } from "./components/ConnectWalletButton";
@@ -12,26 +12,23 @@ import { ActionPendingPage } from "./pages/ActionPending";
 import { ActionResultPage } from "./pages/ActionResult";
 
 function AppShell() {
+  const { pathname } = useLocation();
   return (
-    <div className="shell">
-      <nav className="nav">
-        <div className="nav__brand-row">
-          <Link to="/" className="nav__brand">
+    <div className="app-shell">
+      <nav className="app-nav">
+        <div className="app-nav__brand">
+          <Link to="/agents" className="app-nav__logo">
             Mandate
           </Link>
           <span className="nav__network">Sepolia</span>
         </div>
-        <div className="nav__links">
-          <NavLink to="/agents" className={({ isActive }) => `nav__link${isActive ? " active" : ""}`}>
-            <LayoutGrid size={16} strokeWidth={1.5} />
-            Agents
-          </NavLink>
-          <NavLink to="/register" className={({ isActive }) => `nav__link${isActive ? " active" : ""}`}>
-            <UserPlus size={16} strokeWidth={1.5} />
-            Register
-          </NavLink>
-        </div>
-        <div className="nav__wallet">
+        <div className="app-nav__actions">
+          {pathname !== "/register" && (
+            <Link to="/register" className="btn btn--primary">
+              <UserPlus size={16} strokeWidth={1.5} />
+              Register agent
+            </Link>
+          )}
           <ConnectWalletButton />
         </div>
       </nav>

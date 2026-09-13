@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Bot, Loader2, AlertTriangle, MessageSquare } from "lucide-react";
+import { Bot, Loader2, AlertTriangle, MessageSquare, Info } from "lucide-react";
 
 import { api, type Agent } from "../lib/api";
 import { fetchAgentsCrossQuery, type SubgraphAgent } from "../lib/subgraph";
@@ -10,11 +10,13 @@ import { StatusDot } from "../components/StatusDot";
 import { CopyableAddress } from "../components/CopyableAddress";
 import { subgraphEntityId } from "../lib/constants";
 
-const STATUS_LEGEND: { status: "confirmed" | "pending" | "blocked"; hint: string }[] = [
-  { status: "confirmed", hint: "no action pending" },
-  { status: "pending", hint: "awaiting the approver's signature" },
-  { status: "blocked", hint: "last request was rejected" },
-];
+// The one legacy deployment (docs/mandate.md) with known gaps -- its gate doesn't hold
+// custody and its resolver is writable directly by the owner. Kept in the backend
+// directory for internal comparison, not shown in the product-facing list.
+const LEGACY_PARENT = "agentns.eth";
+
+const STATUS_LEGEND_TEXT =
+  "Confirmed -- no action pending\nAwaiting confirmation -- awaiting the approver's signature\nBlocked -- last request was rejected";
 
 function ReputationSummary({ agent }: { agent: SubgraphAgent | undefined }) {
   if (!agent) return <span className="field__hint">Loading feedback.</span>;
@@ -46,8 +48,9 @@ export function AgentsPage() {
     api
       .listAgents()
       .then(async (r) => {
-        setAgents(r.agents);
-        const ids = r.agents.map((a) => subgraphEntityId(a.agentId));
+        const visible = r.agents.filter((a) => a.parentName !== LEGACY_PARENT);
+        setAgents(visible);
+        const ids = visible.map((a) => subgraphEntityId(a.agentId));
         const results = await fetchAgentsCrossQuery(ids);
         const byId: Record<string, SubgraphAgent> = {};
         for (const a of results) byId[a.agentId] = a;
@@ -66,16 +69,12 @@ export function AgentsPage() {
         <h1>Agents</h1>
         <p>
           AI agents with an on-chain identity. Sensitive actions on any agent below require a second, hardware-signed
-          approval before they take effect -- that approval state is what "Confirmed / Pending / Blocked" describes.
+          approval before they take effect -- that approval state is what "Confirmed / Pending / Blocked" describes.{" "}
+          <span className="info-hint" title={STATUS_LEGEND_TEXT}>
+            <Info size={14} strokeWidth={1.5} />
+            What do these mean?
+          </span>
         </p>
-        <div className="status-legend">
-          {STATUS_LEGEND.map(({ status, hint }) => (
-            <span key={status} className="status-legend__item">
-              <StatusDot status={status} />
-              <strong>{statusLabel(status)}</strong> -- {hint}
-            </span>
-          ))}
-        </div>
       </div>
 
       {error && (

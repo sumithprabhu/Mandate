@@ -16,11 +16,26 @@
   gap: var(--space-5);
 }
 
+.nav__brand-row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
 .nav__brand {
   font-size: var(--text-h3);
   font-weight: 700;
   text-decoration: none;
   color: inherit;
+}
+
+.nav__network {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--ink-dim);
+  padding: 2px var(--space-2);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-pill);
 }
 
 .nav__links {

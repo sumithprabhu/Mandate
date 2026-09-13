@@ -1,0 +1,39 @@
+/* Tailwind for the landing page only. Preflight (Tailwind's base-element reset) is
+   deliberately excluded -- importing the full "tailwindcss" package would reset bare
+   h1/button/input elements globally for the whole SPA, clobbering the app shell's own
+   tokens.css resets on every other page. Utility classes are safe to load globally since
+   they only apply to elements that carry the exact class name. */
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+/* Same real, pixel-sampled semrush.com palette used throughout the rest of the landing
+   page (see landing.css) -- kept in Tailwind's theme so utility classes stay consistent
+   with it rather than introducing a second, different color language. */
+@theme {
+  --color-brand-black: #181e15;
+  --color-brand-black-hover: #33372f;
+  --color-brand-mint: #dceeeb;
+  --color-brand-purple: #c190ff;
+  --color-brand-border: #e3e6ea;
+  --color-brand-text-dim: #62646e;
+  --font-sans: "Inter", -apple-system, sans-serif;
+}
+
+/* Radix Accordion measures content height into this custom property -- standard pattern
+   for animating an intrinsically-sized element open/closed. */
+@keyframes accordion-down {
+  from {
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+@keyframes accordion-up {
+  from {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    height: 0;
+  }
+}

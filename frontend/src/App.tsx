@@ -16,9 +16,12 @@ function AppShell() {
   return (
     <div className="shell">
       <nav className="nav">
-        <Link to="/" className="nav__brand">
-          Mandate
-        </Link>
+        <div className="nav__brand-row">
+          <Link to="/" className="nav__brand">
+            Mandate
+          </Link>
+          <span className="nav__network">Sepolia</span>
+        </div>
         <div className="nav__links">
           <NavLink to="/agents" className={({ isActive }) => `nav__link${isActive ? " active" : ""}`}>
             <LayoutGrid size={16} strokeWidth={1.5} />

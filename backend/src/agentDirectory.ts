@@ -1,11 +1,11 @@
-// No database for this project -- the chain is already the source of truth for
-// everything that matters (ownership, resolver records, pending actions). This file just
-// maps a known agentId to the contract addresses involved, so routes don't need those
-// passed on every request. Persisted as JSON so `POST /agents` can append new agents
-// without a real datastore.
+// No relational database for this project -- the chain is already the source of truth for
+// everything that matters (ownership, resolver records, pending actions). This is just a
+// lookup from a known agentId to the contract addresses involved, so routes don't need
+// those passed on every request. Backed by MongoDB (not a local file) because serverless
+// deploys have a read-only filesystem outside /tmp -- a JSON file on disk doesn't survive
+// a cold start there.
 
-import { readFileSync, writeFileSync, existsSync } from "node:fs";
-import path from "node:path";
+import { MongoClient, type Collection, type Document } from "mongodb";
 import { config } from "./config.js";
 
 export interface AgentRecord {
@@ -25,28 +25,33 @@ export interface AgentRecord {
   note?: string;
 }
 
-const FILE_PATH = path.join(config.dataDir, "agents.json");
+let collectionPromise: Promise<Collection<AgentRecord>> | null = null;
 
-function load(): Record<string, AgentRecord> {
-  if (!existsSync(FILE_PATH)) return {};
-  return JSON.parse(readFileSync(FILE_PATH, "utf8"));
+// Lazy singleton connection -- one client for the life of the process (or the life of a
+// warm serverless instance), not one per request.
+function getCollection(): Promise<Collection<AgentRecord>> {
+  if (!collectionPromise) {
+    const client = new MongoClient(config.mongodbUri);
+    collectionPromise = client
+      .connect()
+      .then((c) => c.db("mandate").collection<AgentRecord>("agents"));
+  }
+  return collectionPromise;
 }
 
-function persist(records: Record<string, AgentRecord>): void {
-  writeFileSync(FILE_PATH, JSON.stringify(records, null, 2) + "\n");
+const noId: { projection: Document } = { projection: { _id: 0 } };
+
+export async function getAgent(agentId: number | string): Promise<AgentRecord | null> {
+  const col = await getCollection();
+  return col.findOne({ agentId: Number(agentId) }, noId);
 }
 
-export function getAgent(agentId: number | string): AgentRecord | null {
-  const records = load();
-  return records[String(agentId)] ?? null;
+export async function listAgents(): Promise<AgentRecord[]> {
+  const col = await getCollection();
+  return col.find({}, noId).sort({ agentId: 1 }).toArray();
 }
 
-export function listAgents(): AgentRecord[] {
-  return Object.values(load());
-}
-
-export function saveAgent(record: AgentRecord): void {
-  const records = load();
-  records[String(record.agentId)] = record;
-  persist(records);
+export async function saveAgent(record: AgentRecord): Promise<void> {
+  const col = await getCollection();
+  await col.updateOne({ agentId: record.agentId }, { $set: record }, { upsert: true });
 }

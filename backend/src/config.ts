@@ -18,4 +18,7 @@ export const config = {
   // Not configured until the Phase 3 manual deploy step (docs/subgraph.md) happens.
   subgraphUrl: process.env.SUBGRAPH_URL || null,
   dataDir: path.join(__dirname, "..", "data"),
+  // Agent directory storage -- a real database, not the local JSON file, since serverless
+  // deploys (Vercel) have a read-only filesystem outside /tmp.
+  mongodbUri: required("MONGODB_URI"),
 };

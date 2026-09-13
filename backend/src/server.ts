@@ -34,8 +34,8 @@ function asyncHandler(fn: (req: Request, res: Response) => Promise<void>) {
   return (req: Request, res: Response, next: NextFunction) => fn(req, res).catch(next);
 }
 
-function requireAgent(req: Request, res: Response) {
-  const agent = getAgent(req.params.agentId);
+async function requireAgent(req: Request, res: Response) {
+  const agent = await getAgent(req.params.agentId);
   if (!agent) {
     res.status(404).json({ error: `unknown agentId ${req.params.agentId}` });
     return null;
@@ -47,20 +47,26 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true, operator: operator.address, chainId: CHAIN_ID });
 });
 
-app.get("/agents", (_req, res) => {
-  res.json({ agents: listAgents() });
-});
+app.get(
+  "/agents",
+  asyncHandler(async (_req, res) => {
+    res.json({ agents: await listAgents() });
+  })
+);
 
-app.get("/agents/:agentId", (req, res) => {
-  const agent = requireAgent(req, res);
-  if (!agent) return;
-  res.json({ agent });
-});
+app.get(
+  "/agents/:agentId",
+  asyncHandler(async (req, res) => {
+    const agent = await requireAgent(req, res);
+    if (!agent) return;
+    res.json({ agent });
+  })
+);
 
 app.get(
   "/agents/:agentId/profile",
   asyncHandler(async (req, res) => {
-    const agent = requireAgent(req, res);
+    const agent = await requireAgent(req, res);
     if (!agent) return;
     const profile = await queryAgentProfile(CHAIN_ID, agent.agentId);
     res.json({ profile });
@@ -85,7 +91,7 @@ app.post(
 
     // Registers under an existing namespace's shared subregistry/resolver -- see
     // docs/mandate.md for how that infra was set up (one-time per namespace, not per-agent).
-    const parent = getAgent(parentAgentId);
+    const parent = await getAgent(parentAgentId);
     if (!parent) return void res.status(404).json({ error: `unknown parentAgentId ${parentAgentId}` });
 
     // Self-serve path: `owner` is the caller's own connected-wallet address, not the
@@ -126,7 +132,7 @@ app.post(
       ...(!isSelfServe && parent.approver ? { approver: parent.approver } : {}),
       ...(!isSelfServe && parent.domainName ? { domainName: parent.domainName } : {}),
     };
-    saveAgent(record);
+    await saveAgent(record);
 
     res.status(201).json({
       agent: record,
@@ -140,7 +146,7 @@ app.post(
 app.post(
   "/agents/:agentId/transfer",
   asyncHandler(async (req, res) => {
-    const agent = requireAgent(req, res);
+    const agent = await requireAgent(req, res);
     if (!agent) return;
     if (!agent.gate) return void res.status(400).json({ error: "agent has no PermissionGate configured" });
 
@@ -173,7 +179,7 @@ app.post(
 app.post(
   "/agents/:agentId/escalate",
   asyncHandler(async (req, res) => {
-    const agent = requireAgent(req, res);
+    const agent = await requireAgent(req, res);
     if (!agent) return;
     if (!agent.gate) return void res.status(400).json({ error: "agent has no PermissionGate configured" });
 
@@ -204,7 +210,7 @@ app.post(
 app.get(
   "/agents/:agentId/actions/:actionId",
   asyncHandler(async (req, res) => {
-    const agent = requireAgent(req, res);
+    const agent = await requireAgent(req, res);
     if (!agent) return;
     if (!agent.gate) return void res.status(400).json({ error: "agent has no PermissionGate configured" });
 
@@ -226,8 +232,8 @@ app.get(
 
 app.get(
   "/agents/:agentId/actions/:actionId/typed-data",
-  (req, res) => {
-    const agent = getAgent(req.params.agentId);
+  asyncHandler(async (req, res) => {
+    const agent = await getAgent(req.params.agentId);
     if (!agent) return void res.status(404).json({ error: `unknown agentId ${req.params.agentId}` });
     if (!agent.gate) return void res.status(400).json({ error: "agent has no PermissionGate configured" });
     if (!agent.domainName) {
@@ -239,13 +245,13 @@ app.get(
       typedData,
       note: "sign this with the approver key (e.g. scripts/ledger-approve.ts for real Ledger hardware) and POST the resulting signature to .../approve",
     });
-  }
+  })
 );
 
 app.post(
   "/agents/:agentId/actions/:actionId/approve",
   asyncHandler(async (req, res) => {
-    const agent = requireAgent(req, res);
+    const agent = await requireAgent(req, res);
     if (!agent) return;
     if (!agent.gate) return void res.status(400).json({ error: "agent has no PermissionGate configured" });
 
@@ -265,6 +271,14 @@ app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   res.status(500).json({ error: err.message });
 });
 
-app.listen(config.port, () => {
-  console.log(`Mandate backend listening on :${config.port} (operator ${operator.address})`);
-});
+// Only bind a port when run directly (`tsx src/server.ts` / `npm run dev`) -- Vercel's
+// serverless runtime imports this module and calls the exported app as a request handler
+// instead, it never runs the file as the process entrypoint.
+const isMainModule = import.meta.url === `file://${process.argv[1]}`;
+if (isMainModule) {
+  app.listen(config.port, () => {
+    console.log(`Mandate backend listening on :${config.port} (operator ${operator.address})`);
+  });
+}
+
+export default app;

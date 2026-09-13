@@ -8,6 +8,7 @@ import { resolveTextRecord, readLiveOwner } from "../lib/chain";
 import { deriveStatus, statusLabel } from "../lib/status";
 import { subgraphEntityId } from "../lib/constants";
 import { StatusDot } from "../components/StatusDot";
+import { CopyableAddress } from "../components/CopyableAddress";
 
 const CAPABILITY_KEY = "mandate:capabilities";
 
@@ -92,8 +93,8 @@ export function AgentDetailPage() {
         )}
       </div>
 
-      <div className="bento">
-        <div className="panel bento__cell--1">
+      <div className="grid-3">
+        <div className="panel">
           <div className="compare-pair__label">Current owner</div>
           {liveOwner === null ? (
             <div className="status-row">
@@ -102,13 +103,15 @@ export function AgentDetailPage() {
             </div>
           ) : (
             <>
-              <div className="mono">{liveOwner}</div>
-              <div className="field__hint">Live-read from {agent.subregistry}</div>
+              <CopyableAddress address={liveOwner} />
+              <div className="field__hint">
+                Live-read from <CopyableAddress address={agent.subregistry} />
+              </div>
             </>
           )}
         </div>
 
-        <div className="panel bento__cell--1">
+        <div className="panel">
           <div className="compare-pair__label">Status</div>
           <div className="status-row">
             <StatusDot status={status} />
@@ -116,7 +119,7 @@ export function AgentDetailPage() {
           </div>
         </div>
 
-        <div className="panel bento__cell--2">
+        <div className="panel">
           <div className="compare-pair__label">Capability manifest</div>
           {capability === undefined ? (
             <div className="status-row">
@@ -127,7 +130,7 @@ export function AgentDetailPage() {
             <>
               <div className="mono">{capability.value}</div>
               <div className="field__hint">
-                Resolved key {CAPABILITY_KEY}, answered by <span className="mono">{capability.resolver}</span>
+                Key {CAPABILITY_KEY}, via {capability.resolver && <CopyableAddress address={capability.resolver} />}
               </div>
             </>
           ) : (
@@ -171,8 +174,10 @@ export function AgentDetailPage() {
                         {a.status}
                       </span>
                     </td>
-                    <td className="mono">{a.requestedBy}</td>
-                    <td className="mono">{a.approvedBy ?? "—"}</td>
+                    <td>
+                      <CopyableAddress address={a.requestedBy} />
+                    </td>
+                    <td>{a.approvedBy ? <CopyableAddress address={a.approvedBy} /> : "—"}</td>
                     <td className="mono">{formatTimestamp(a.requestedAt)}</td>
                     <td className="mono">{formatTimestamp(a.executedAt)}</td>
                   </tr>

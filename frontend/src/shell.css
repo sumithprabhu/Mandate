@@ -192,6 +192,44 @@ a.panel:hover {
   }
 }
 
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .grid-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+.copyable-address {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  white-space: nowrap;
+}
+
+.copyable-address__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
+  padding: 2px;
+  margin: 0;
+  color: var(--ink-faint);
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.copyable-address__btn:hover {
+  color: var(--ink-dim);
+  background: var(--surface-sunken);
+}
+
 .status-dot {
   width: 8px;
   height: 8px;

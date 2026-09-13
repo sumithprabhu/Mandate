@@ -11,6 +11,7 @@ export function CopyableAddress({ address, chars = 4 }: { address: string; chars
 
   async function copy(e: React.MouseEvent) {
     e.preventDefault();
+    e.stopPropagation();
     await navigator.clipboard.writeText(address);
     setCopied(true);
     setTimeout(() => setCopied(false), 1500);

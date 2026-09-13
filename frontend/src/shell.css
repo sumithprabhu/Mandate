@@ -105,6 +105,42 @@
   margin-top: var(--space-2);
 }
 
+.status-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  margin-top: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-sunken);
+  border-radius: var(--radius);
+  font-size: 0.8rem;
+  color: var(--ink-dim);
+}
+
+.status-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.status-legend__item strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.reputation {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: 0.85rem;
+  color: var(--ink-dim);
+}
+
+.reputation__score {
+  font-weight: 700;
+  color: var(--ink);
+}
+
 .button-row {
   display: flex;
   gap: var(--space-3);

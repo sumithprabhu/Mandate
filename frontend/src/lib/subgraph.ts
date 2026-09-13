@@ -1,5 +1,5 @@
 // Direct subgraph access for the frontend -- used where a real cross-agent query is the
-// point (Trust page), not a per-agent proxy through the backend.
+// point (Agents list), not a per-agent proxy through the backend.
 const SUBGRAPH_URL =
   import.meta.env.VITE_SUBGRAPH_URL || "https://api.studio.thegraph.com/query/1758954/mandate/v0.4.0";
 
@@ -21,7 +21,7 @@ export interface SubgraphAgent {
   owner: string;
   totalFeedback: string;
   gatedActions: GatedAction[];
-  feedback: { value: string; tag1: string | null; isRevoked: boolean }[];
+  feedback: { value: string; valueDecimals: number; tag1: string | null; isRevoked: boolean }[];
 }
 
 async function query<T>(gql: string, variables?: Record<string, unknown>): Promise<T> {
@@ -46,7 +46,7 @@ export async function fetchAgentsCrossQuery(agentEntityIds: string[]): Promise<S
         agentURI
         owner
         totalFeedback
-        feedback(first: 5) { value tag1 isRevoked }
+        feedback(first: 5) { value valueDecimals tag1 isRevoked }
         gatedActions(orderBy: requestedAt, orderDirection: desc) {
           actionType
           status
@@ -138,7 +138,7 @@ export async function fetchAgent(agentEntityId: string): Promise<SubgraphAgent |
         agentURI
         owner
         totalFeedback
-        feedback(first: 5) { value tag1 isRevoked }
+        feedback(first: 5) { value valueDecimals tag1 isRevoked }
         gatedActions(orderBy: requestedAt, orderDirection: desc) {
           actionType
           status

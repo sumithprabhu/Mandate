@@ -1,5 +1,5 @@
 import { Routes, Route, NavLink, Link, Outlet } from "react-router-dom";
-import { LayoutGrid, Network, UserPlus } from "lucide-react";
+import { LayoutGrid, UserPlus } from "lucide-react";
 
 import "./shell.css";
 import { ConnectWalletButton } from "./components/ConnectWalletButton";
@@ -10,7 +10,6 @@ import { ProposePage } from "./pages/Propose";
 import { RegisterPage } from "./pages/Register";
 import { ActionPendingPage } from "./pages/ActionPending";
 import { ActionResultPage } from "./pages/ActionResult";
-import { TrustPage } from "./pages/Trust";
 
 function AppShell() {
   return (
@@ -26,10 +25,6 @@ function AppShell() {
           <NavLink to="/agents" className={({ isActive }) => `nav__link${isActive ? " active" : ""}`}>
             <LayoutGrid size={16} strokeWidth={1.5} />
             Agents
-          </NavLink>
-          <NavLink to="/trust" className={({ isActive }) => `nav__link${isActive ? " active" : ""}`}>
-            <Network size={16} strokeWidth={1.5} />
-            Trust
           </NavLink>
           <NavLink to="/register" className={({ isActive }) => `nav__link${isActive ? " active" : ""}`}>
             <UserPlus size={16} strokeWidth={1.5} />
@@ -58,7 +53,6 @@ export default function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/actions/:id/pending" element={<ActionPendingPage />} />
         <Route path="/actions/:id/result" element={<ActionResultPage />} />
-        <Route path="/trust" element={<TrustPage />} />
       </Route>
     </Routes>
   );

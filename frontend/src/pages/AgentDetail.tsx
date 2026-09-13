@@ -7,6 +7,7 @@ import { fetchAgent, type SubgraphAgent } from "../lib/subgraph";
 import { resolveTextRecord, readLiveOwner } from "../lib/chain";
 import { deriveStatus, statusLabel } from "../lib/status";
 import { subgraphEntityId } from "../lib/constants";
+import { scaleFeedbackValue } from "../lib/format";
 import { StatusDot } from "../components/StatusDot";
 import { CopyableAddress } from "../components/CopyableAddress";
 
@@ -137,6 +138,34 @@ export function AgentDetailPage() {
             <div className="field__hint">No capability manifest set for this name.</div>
           )}
         </div>
+      </div>
+
+      <div className="panel panel--tight">
+        <h3>Reputation feedback</h3>
+        {!sub && !error && (
+          <div className="empty-state">
+            <Loader2 size={16} strokeWidth={1.5} className="spin" />
+            <span>Loading feedback from the subgraph.</span>
+          </div>
+        )}
+        {sub && sub.feedback.length === 0 && (
+          <div className="empty-state">
+            <span>No feedback submitted for this agent yet.</span>
+          </div>
+        )}
+        {sub && sub.feedback.length > 0 && (
+          <ul className="feedback-list">
+            {sub.feedback.map((f, i) => (
+              <li key={i}>
+                <span className={f.isRevoked ? "field__hint" : ""}>
+                  <strong>{scaleFeedbackValue(f.value, f.valueDecimals)}</strong>
+                  {f.tag1 ? ` -- ${f.tag1}` : ""}
+                  {f.isRevoked ? " (revoked)" : ""}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       <div className="panel panel--tight">

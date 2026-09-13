@@ -49,27 +49,27 @@ const faqs = [
   },
   {
     q: "What does \"gated\" actually mean?",
-    a: "Every ownership transfer or permission change goes through a PermissionGate contract first. It sits blocked as Pending until an approver signs it -- nothing executes until then, and it can be rejected instead.",
+    a: "Every ownership transfer or permission change goes through a PermissionGate contract first. It sits blocked as Pending until an approver signs it — nothing executes until then, and it can be rejected instead.",
   },
   {
     q: "Do I need a Ledger to use this?",
-    a: "You need one to act as the approver -- the second signature. MetaMask with a Ledger connected works the same as any wallet from the site's side; you don't need to talk to the Ledger directly in the browser.",
+    a: "You need one to act as the approver — the second signature. MetaMask with a Ledger connected works the same as any wallet from the site's side; you don't need to talk to the Ledger directly in the browser.",
   },
   {
     q: "Who can propose a change to my agent?",
-    a: "Only the operator address you registered with -- enforced on chain by the PermissionGate contract, not by this website.",
+    a: "Only the operator address you registered with — enforced on chain by the PermissionGate contract, not by this website.",
   },
   {
     q: "What happens if I reject a proposed action?",
-    a: "It's marked Rejected on chain and can never execute. Rejecting needs no signature at all -- it's a direct call from the approver's wallet.",
+    a: "It's marked Rejected on chain and can never execute. Rejecting needs no signature at all — it's a direct call from the approver's wallet.",
   },
   {
     q: "Is this on mainnet?",
-    a: "No -- everything here runs on Sepolia, Ethereum's public test network. Test ETH has no real value; get some from a Sepolia faucet to try it yourself.",
+    a: "No — everything here runs on Sepolia, Ethereum's public test network. Test ETH has no real value; get some from a Sepolia faucet to try it yourself.",
   },
   {
     q: "What's ERC-8004?",
-    a: "The identity standard this project registers agents under -- a way for an on-chain agent to have its own persistent, ownable identity, separate from any single wallet.",
+    a: "The identity standard this project registers agents under — a way for an on-chain agent to have its own persistent, ownable identity, separate from any single wallet.",
   },
 ];
 
@@ -180,7 +180,7 @@ export function HomePage() {
         </section>
 
         <footer className="landing-footer">
-          <span>Mandate -- ERC-8004 identity, ENS naming, hardware-gated permission changes.</span>
+          <span>Mandate — ERC-8004 identity, ENS naming, hardware-gated permission changes.</span>
           <a href={`https://sepolia.etherscan.io/address/${CANONICAL_GATE}`} target="_blank" rel="noreferrer">
             Canonical PermissionGate
           </a>

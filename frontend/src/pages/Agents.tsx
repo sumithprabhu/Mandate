@@ -46,7 +46,7 @@ function StatusLegendHint() {
             <div key={status} className="info-popover__item">
               <StatusDot status={status} />
               <span>
-                <strong>{statusLabel(status)}</strong> -- {hint}
+                <strong>{statusLabel(status)}</strong> — {hint}
               </span>
             </div>
           ))}
@@ -124,7 +124,7 @@ export function AgentsPage() {
         <h1>Agents</h1>
         <p>
           AI agents with an on-chain identity. Sensitive actions on any agent below require a second, hardware-signed
-          approval before they take effect -- that approval state is what "Confirmed / Pending / Blocked" describes.{" "}
+          approval before they take effect — that approval state is what "Confirmed / Pending / Blocked" describes.{" "}
           <StatusLegendHint />
         </p>
       </div>

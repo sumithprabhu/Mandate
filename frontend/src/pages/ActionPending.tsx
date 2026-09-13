@@ -37,7 +37,7 @@ export function ActionPendingPage() {
 
   useEffect(() => {
     if (!agentName) {
-      setError("No agent specified for this action -- reload from the agent's page.");
+      setError("No agent specified for this action — reload from the agent's page.");
       return;
     }
     api
@@ -116,7 +116,7 @@ export function ActionPendingPage() {
   if (gateInfo === null) {
     return (
       <div className="panel empty-state">
-        <span>{agent.name} has no PermissionGate configured -- there's no action to show.</span>
+        <span>{agent.name} has no PermissionGate configured — there's no action to show.</span>
       </div>
     );
   }

@@ -163,7 +163,7 @@ export function AgentDetailPage() {
               <li key={i}>
                 <span className={f.isRevoked ? "field__hint" : ""}>
                   <strong>{scaleFeedbackValue(f.value, f.valueDecimals)}</strong>
-                  {f.tag1 ? ` -- ${f.tag1}` : ""}
+                  {f.tag1 ? ` — ${f.tag1}` : ""}
                   {f.isRevoked ? " (revoked)" : ""}
                 </span>
               </li>

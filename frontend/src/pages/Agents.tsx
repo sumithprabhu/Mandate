@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Bot, Loader2, AlertTriangle, MessageSquare, Info } from "lucide-react";
+import { Loader2, AlertTriangle, MessageSquare, Info } from "lucide-react";
 
 import { api, type Agent } from "../lib/api";
 import { fetchAgentsCrossQuery, type SubgraphAgent } from "../lib/subgraph";
-import { deriveStatus, statusLabel } from "../lib/status";
+import { deriveStatus, statusLabel, type Status } from "../lib/status";
 import { scaleFeedbackValue } from "../lib/format";
 import { StatusDot } from "../components/StatusDot";
 import { CopyableAddress } from "../components/CopyableAddress";
@@ -15,8 +15,46 @@ import { subgraphEntityId } from "../lib/constants";
 // directory for internal comparison, not shown in the product-facing list.
 const LEGACY_PARENT = "agentns.eth";
 
-const STATUS_LEGEND_TEXT =
-  "Confirmed -- no action pending\nAwaiting confirmation -- awaiting the approver's signature\nBlocked -- last request was rejected";
+const STATUS_LEGEND: { status: Status; hint: string }[] = [
+  { status: "confirmed", hint: "no action pending" },
+  { status: "pending", hint: "awaiting the approver's signature" },
+  { status: "blocked", hint: "last request was rejected" },
+];
+
+function StatusLegendHint() {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    function onClickOutside(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", onClickOutside);
+    return () => document.removeEventListener("mousedown", onClickOutside);
+  }, [open]);
+
+  return (
+    <span className="info-hint" ref={ref}>
+      <button type="button" className="info-hint__trigger" onClick={() => setOpen((v) => !v)} aria-expanded={open}>
+        <Info size={14} strokeWidth={1.5} />
+        What do these mean?
+      </button>
+      {open && (
+        <div className="info-popover">
+          {STATUS_LEGEND.map(({ status, hint }) => (
+            <div key={status} className="info-popover__item">
+              <StatusDot status={status} />
+              <span>
+                <strong>{statusLabel(status)}</strong> -- {hint}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </span>
+  );
+}
 
 function ReputationSummary({ agent }: { agent: SubgraphAgent | undefined }) {
   if (!agent) return <span className="field__hint">Loading feedback.</span>;
@@ -62,18 +100,11 @@ export function AgentsPage() {
   return (
     <>
       <div className="page-header">
-        <div className="page-header__eyebrow">
-          <Bot size={16} strokeWidth={1.5} />
-          Registered agents
-        </div>
         <h1>Agents</h1>
         <p>
           AI agents with an on-chain identity. Sensitive actions on any agent below require a second, hardware-signed
           approval before they take effect -- that approval state is what "Confirmed / Pending / Blocked" describes.{" "}
-          <span className="info-hint" title={STATUS_LEGEND_TEXT}>
-            <Info size={14} strokeWidth={1.5} />
-            What do these mean?
-          </span>
+          <StatusLegendHint />
         </p>
       </div>
 

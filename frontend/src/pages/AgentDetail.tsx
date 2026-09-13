@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowRight, Loader2, AlertTriangle, ExternalLink } from "lucide-react";
+import { ArrowLeft, ArrowRight, Loader2, AlertTriangle, ExternalLink } from "lucide-react";
 
 import { api, type Agent } from "../lib/api";
 import { fetchAgent, type SubgraphAgent } from "../lib/subgraph";
@@ -81,6 +81,10 @@ export function AgentDetailPage() {
   return (
     <>
       <div className="page-header">
+        <Link to="/agents" className="back-link">
+          <ArrowLeft size={14} strokeWidth={1.5} />
+          Back to agents
+        </Link>
         <div className="page-header__eyebrow">Agent profile</div>
         <h1>{agent.name}</h1>
         <p>Registered under {agent.parentName}, agent ID {agent.agentId}.</p>

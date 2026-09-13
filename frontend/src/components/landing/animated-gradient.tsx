@@ -1,24 +1,23 @@
 import { motion } from "motion/react";
 
-/** Slow-drifting blurred color blobs behind a dark section -- respects
- * prefers-reduced-motion via MotionConfig at the page root. */
+/** A slow-sweeping radial spotlight over a fixed grid of lines -- reads closer to a
+ * ledger/network motif than soft color blobs. Respects prefers-reduced-motion via
+ * MotionConfig at the page root. */
 export function AnimatedGradient() {
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
-      <motion.div
-        className="absolute -left-20 -top-32 h-96 w-96 rounded-full bg-brand-purple/40 blur-[100px]"
-        animate={{ x: [0, 60, 0], y: [0, 40, 0] }}
-        transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+      <div
+        className="absolute inset-0 opacity-[0.15]"
+        style={{
+          backgroundImage:
+            "linear-gradient(to right, #ffffff 1px, transparent 1px), linear-gradient(to bottom, #ffffff 1px, transparent 1px)",
+          backgroundSize: "48px 48px",
+        }}
       />
       <motion.div
-        className="absolute -bottom-32 left-1/3 h-96 w-96 rounded-full bg-brand-mint/50 blur-[100px]"
-        animate={{ x: [0, -50, 0], y: [0, -30, 0] }}
-        transition={{ duration: 16, repeat: Infinity, ease: "easeInOut" }}
-      />
-      <motion.div
-        className="absolute -right-20 top-0 h-80 w-80 rounded-full bg-brand-purple/30 blur-[100px]"
-        animate={{ x: [0, -40, 0], y: [0, 50, 0] }}
-        transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute h-[520px] w-[520px] rounded-full bg-brand-purple/50 blur-[110px]"
+        animate={{ left: ["-10%", "60%", "-10%"], top: ["-20%", "40%", "-20%"] }}
+        transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
       />
     </div>
   );

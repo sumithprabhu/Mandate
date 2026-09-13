@@ -119,10 +119,10 @@ export function HomePage() {
           </motion.div>
         </div>
 
-        <section id="how-it-works" className="mx-auto max-w-5xl px-7 py-24">
-          <h2 className="mb-12 text-2xl font-extrabold">How Mandate works</h2>
+        <section id="how-it-works" className="mx-auto max-w-5xl px-7 py-28">
+          <h2 className="mb-20 text-2xl font-extrabold">How Mandate works</h2>
           <motion.div
-            className="grid gap-4 sm:grid-cols-3"
+            className="grid gap-8 sm:grid-cols-3"
             variants={stagger}
             initial="hidden"
             whileInView="show"
@@ -130,11 +130,11 @@ export function HomePage() {
           >
             {steps.map((step) => (
               <motion.div key={step.number} variants={fadeUp} whileHover={{ y: -4 }}>
-                <Card className="h-full transition-shadow hover:shadow-[0_8px_24px_rgba(24,30,21,0.08)]">
-                  <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-brand-mint">
+                <Card className="h-full p-8 transition-shadow hover:shadow-[0_8px_24px_rgba(24,30,21,0.08)]">
+                  <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-brand-mint">
                     <step.icon size={20} strokeWidth={1.5} className="text-brand-black" />
                   </div>
-                  <div className="mb-2 text-xs font-bold text-brand-text-dim">{step.number}</div>
+                  <div className="mb-3 text-xs font-bold text-brand-text-dim">{step.number}</div>
                   <p className="text-brand-text-dim">{step.text}</p>
                 </Card>
               </motion.div>
@@ -142,9 +142,9 @@ export function HomePage() {
           </motion.div>
         </section>
 
-        <section id="faq" className="mx-auto max-w-3xl px-7 py-24">
-          <h2 className="mb-8 text-2xl font-extrabold">Frequently asked</h2>
-          <Accordion type="single" collapsible className="flex flex-col gap-3">
+        <section id="faq" className="mx-auto max-w-3xl px-7 py-28">
+          <h2 className="mb-16 text-2xl font-extrabold">Frequently asked</h2>
+          <Accordion type="single" collapsible className="flex flex-col gap-4">
             {faqs.map((item) => (
               <AccordionItem key={item.q} value={item.q}>
                 <AccordionTrigger>{item.q}</AccordionTrigger>

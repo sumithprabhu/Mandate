@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion, MotionConfig } from "motion/react";
-import { ArrowRight, Send, Lock, KeyRound } from "lucide-react";
+import { ArrowRight, Fingerprint, Send, Lock, KeyRound, MessageSquare } from "lucide-react";
 
 import { FloatingNav } from "../components/landing/floating-nav";
 import { Button } from "../components/landing/button";
@@ -27,16 +27,21 @@ const stagger = {
 const steps = [
   {
     number: "01",
-    icon: Send,
-    text: "An operator proposes an ownership transfer or a permission escalation for an agent.",
+    icon: Fingerprint,
+    text: "The agent gets an ERC-8004 identity and a human-readable ENS name — its persistent, ownable identity on chain.",
   },
   {
     number: "02",
+    icon: Send,
+    text: "An operator proposes an ownership transfer or a permission escalation for the agent.",
+  },
+  {
+    number: "03",
     icon: Lock,
     text: "The request sits blocked on the agent's PermissionGate. Nothing has happened on chain yet.",
   },
   {
-    number: "03",
+    number: "04",
     icon: KeyRound,
     text: "An approver reviews it and signs with a physically connected Ledger. Only then does it execute.",
   },
@@ -128,7 +133,7 @@ export function HomePage() {
             <h2 className="text-2xl font-extrabold">How Mandate works</h2>
           </div>
           <motion.div
-            className="grid gap-8 sm:grid-cols-3"
+            className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4"
             variants={stagger}
             initial="hidden"
             whileInView="show"
@@ -146,6 +151,14 @@ export function HomePage() {
               </motion.div>
             ))}
           </motion.div>
+
+          <div className="mt-10 flex items-center gap-3 text-brand-text-dim">
+            <MessageSquare size={18} strokeWidth={1.5} className="shrink-0 text-brand-black" />
+            <span>
+              Every agent also carries reputation feedback left by other users — visible on its profile alongside its
+              full gated-action history.
+            </span>
+          </div>
         </section>
 
         <section id="faq" className="mx-auto max-w-3xl px-7 py-28">

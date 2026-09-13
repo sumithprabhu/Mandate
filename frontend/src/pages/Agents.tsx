@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Loader2, AlertTriangle, MessageSquare, Info } from "lucide-react";
+import { Loader2, AlertTriangle, MessageSquare, Info, Search } from "lucide-react";
 
 import { api, type Agent } from "../lib/api";
 import { fetchAgentsCrossQuery, type SubgraphAgent } from "../lib/subgraph";
@@ -77,10 +77,19 @@ function ReputationSummary({ agent }: { agent: SubgraphAgent | undefined }) {
   );
 }
 
+const STATUS_FILTERS: { value: "all" | Status; label: string }[] = [
+  { value: "all", label: "All" },
+  { value: "confirmed", label: "Confirmed" },
+  { value: "pending", label: "Pending" },
+  { value: "blocked", label: "Blocked" },
+];
+
 export function AgentsPage() {
   const [agents, setAgents] = useState<Agent[] | null>(null);
   const [subgraphData, setSubgraphData] = useState<Record<string, SubgraphAgent>>({});
   const [error, setError] = useState<string | null>(null);
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | Status>("all");
 
   useEffect(() => {
     api
@@ -96,6 +105,18 @@ export function AgentsPage() {
       })
       .catch((e) => setError(e.message));
   }, []);
+
+  const visibleAgents = useMemo(() => {
+    if (!agents) return null;
+    const q = search.trim().toLowerCase();
+    return agents.filter((agent) => {
+      const sub = subgraphData[String(agent.agentId)];
+      const status = sub ? deriveStatus(sub.gatedActions) : "confirmed";
+      if (statusFilter !== "all" && status !== statusFilter) return false;
+      if (q && !agent.name.toLowerCase().includes(q) && !agent.owner.toLowerCase().includes(q)) return false;
+      return true;
+    });
+  }, [agents, subgraphData, search, statusFilter]);
 
   return (
     <>
@@ -129,8 +150,44 @@ export function AgentsPage() {
       )}
 
       {agents !== null && agents.length > 0 && (
+        <div className="agents-toolbar">
+          <div className="search-input">
+            <Search size={16} strokeWidth={1.5} />
+            <input
+              type="text"
+              placeholder="Search by name or owner address"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+          </div>
+          <div className="filter-pills">
+            {STATUS_FILTERS.map(({ value, label }) => (
+              <button
+                key={value}
+                type="button"
+                className={`filter-pill${statusFilter === value ? " active" : ""}`}
+                onClick={() => setStatusFilter(value)}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {visibleAgents !== null && visibleAgents.length === 0 && agents !== null && agents.length > 0 && (
+        <div className="panel empty-state">
+          <span>
+            No agents match
+            {search ? ` "${search}"` : ""}
+            {statusFilter !== "all" ? `${search ? " with status" : " status"} ${statusFilter}` : ""}.
+          </span>
+        </div>
+      )}
+
+      {visibleAgents !== null && visibleAgents.length > 0 && (
         <div className="bento">
-          {agents.map((agent) => {
+          {visibleAgents.map((agent) => {
             const sub = subgraphData[String(agent.agentId)];
             const actionCount = sub?.gatedActions.length ?? 0;
             const status = sub ? deriveStatus(sub.gatedActions) : "confirmed";

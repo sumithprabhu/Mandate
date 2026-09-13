@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAccount, useBalance, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
-import { AlertTriangle, ArrowRight, Loader2 } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ArrowRight, Loader2 } from "lucide-react";
 
 import { api } from "../lib/api";
 import { PERMISSION_GATE_FACTORY, permissionGateFactoryAbi } from "../lib/chain";
@@ -61,6 +61,10 @@ export function RegisterPage() {
   return (
     <>
       <div className="page-header">
+        <Link to="/agents" className="back-link">
+          <ArrowLeft size={14} strokeWidth={1.5} />
+          Back to agents
+        </Link>
         <div className="page-header__eyebrow">Self-serve registration</div>
         <h1>Register an agent</h1>
         <p>

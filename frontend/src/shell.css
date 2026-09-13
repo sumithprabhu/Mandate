@@ -212,6 +212,68 @@
   color: var(--ink);
 }
 
+.agents-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.search-input {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  background: var(--surface-sunken);
+  border: var(--border);
+  border-radius: var(--radius);
+  padding: var(--space-2) var(--space-3);
+  color: var(--ink-faint);
+  flex: 1 1 260px;
+  max-width: 360px;
+}
+
+.search-input input {
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--ink);
+  font-size: 0.9rem;
+  width: 100%;
+  padding: 0;
+}
+
+.search-input input::placeholder {
+  color: var(--ink-faint);
+}
+
+.filter-pills {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.filter-pill {
+  border: var(--border);
+  background: var(--panel-bg);
+  color: var(--ink-dim);
+  font-size: 0.8rem;
+  font-weight: 500;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+
+.filter-pill:hover {
+  border-color: var(--ink-dim);
+  color: var(--ink);
+}
+
+.filter-pill.active {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--ink-inverse);
+}
+
 .button-row {
   display: flex;
   gap: var(--space-3);

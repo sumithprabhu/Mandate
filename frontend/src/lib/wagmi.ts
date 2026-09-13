@@ -1,15 +1,18 @@
-import { createConfig, http } from "wagmi";
+import { getDefaultConfig } from "@rainbow-me/rainbowkit";
+import { http } from "wagmi";
 import { sepolia } from "wagmi/chains";
-import { injected } from "wagmi/connectors";
 
-// injected() picks up any EIP-1193 provider the browser exposes -- MetaMask with a Ledger
-// plugged in shows up exactly the same way as a plain hot wallet from here. WalletConnect
-// needs a Cloud project ID only the project owner can obtain, so it's deferred rather than
-// blocking wallet support entirely.
-export const wagmiConfig = createConfig({
+// getDefaultConfig wires up RainbowKit's wallet list (injected/MetaMask/Rainbow/Coinbase
+// etc.) plus WalletConnect as one connector, so a Ledger behind MetaMask still shows up
+// exactly like before. WalletConnect needs a real Cloud project ID to work (get one free at
+// https://cloud.walletconnect.com) -- without it that one connector just won't complete a
+// QR-code connection, everything else (injected wallets) still works.
+export const wagmiConfig = getDefaultConfig({
+  appName: "Mandate",
+  projectId: import.meta.env.VITE_WALLETCONNECT_PROJECT_ID || "00000000000000000000000000000000",
   chains: [sepolia],
-  connectors: [injected()],
   transports: {
     [sepolia.id]: http(import.meta.env.VITE_SEPOLIA_RPC_URL || "https://ethereum-sepolia-rpc.publicnode.com"),
   },
+  ssr: false,
 });

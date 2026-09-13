@@ -1,37 +1,53 @@
-import { useAccount, useConnect, useDisconnect } from "wagmi";
-import { Wallet } from "lucide-react";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { Wallet, AlertTriangle } from "lucide-react";
 
 function truncate(address: string): string {
   return `${address.slice(0, 6)}…${address.slice(-4)}`;
 }
 
 export function ConnectWalletButton({ variant = "app" }: { variant?: "app" | "landing" }) {
-  const { address, isConnected } = useAccount();
-  const { connectors, connect, isPending } = useConnect();
-  const { disconnect } = useDisconnect();
-
   const baseClass = variant === "landing" ? "landing-btn" : "btn";
   const primaryClass = variant === "landing" ? "landing-btn landing-btn--primary" : "btn btn--primary";
 
-  if (isConnected && address) {
-    return (
-      <button className={baseClass} onClick={() => disconnect()}>
-        <span className="mono">{truncate(address)}</span>
-        Disconnect
-      </button>
-    );
-  }
-
-  const injectedConnector = connectors.find((c) => c.id === "injected") ?? connectors[0];
-
   return (
-    <button
-      className={primaryClass}
-      disabled={!injectedConnector || isPending}
-      onClick={() => injectedConnector && connect({ connector: injectedConnector })}
-    >
-      <Wallet size={16} strokeWidth={1.5} />
-      {isPending ? "Connecting…" : "Connect wallet"}
-    </button>
+    <ConnectButton.Custom>
+      {({ account, chain, openAccountModal, openChainModal, openConnectModal, mounted }) => {
+        const ready = mounted;
+        const connected = ready && account && chain;
+
+        if (!ready) {
+          return (
+            <button className={primaryClass} disabled aria-hidden>
+              <Wallet size={16} strokeWidth={1.5} />
+              Connect wallet
+            </button>
+          );
+        }
+
+        if (!connected) {
+          return (
+            <button className={primaryClass} onClick={openConnectModal}>
+              <Wallet size={16} strokeWidth={1.5} />
+              Connect wallet
+            </button>
+          );
+        }
+
+        if (chain.unsupported) {
+          return (
+            <button className={baseClass} onClick={openChainModal}>
+              <AlertTriangle size={16} strokeWidth={1.5} />
+              Wrong network
+            </button>
+          );
+        }
+
+        return (
+          <button className={baseClass} onClick={openAccountModal}>
+            <span className="mono">{truncate(account.address)}</span>
+          </button>
+        );
+      }}
+    </ConnectButton.Custom>
   );
 }

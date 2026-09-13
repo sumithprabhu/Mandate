@@ -1,0 +1,90 @@
+MANDATE — 3-MINUTE DEMO SCRIPT
+================================
+Total runtime budget: 3:00
+  Part 1 — Product pitch : ~1:00
+  Part 2 — Live demo     : ~2:00
+
+------------------------------------------------
+PART 1 — PRODUCT PITCH (~1:00, read this)
+------------------------------------------------
+AI agents are starting to hold real permissions and real assets on
+chain. But if the wallet controlling one gets compromised, or the
+agent itself misbehaves, there's no second check. Whoever holds the
+key can change anything about it, instantly, with one signature.
+
+Mandate fixes that. Every agent gets a real identity: ERC-8004 plus a
+human-readable ENS name. From there, any change to its ownership or
+its permissions goes through a PermissionGate. It sits blocked as
+Pending until a separate approver signs it, on a physically connected
+Ledger. Nothing executes until that second signature happens, and it
+can be rejected outright instead.
+
+And it's fully self-serve. Connect your own wallet, register your own
+agent, deploy your own gate naming your own approver. No backend
+holding your keys, no shared demo setup. Every agent also carries
+public reputation feedback, so trust isn't just assumed, it's visible.
+
+This is live on Sepolia right now: real identity registry, real
+contracts, real subgraph indexing every action.
+
+------------------------------------------------
+PART 2 — LIVE DEMO FLOW (~2:00, read-only — no live writes)
+------------------------------------------------
+Nothing below submits a transaction. Every screen is either a live
+read off Sepolia or an already-settled past action. Keeps the demo
+tight and removes all confirmation-wait risk.
+
+Before you start recording:
+  - Have an agent with real history already loaded (agent1.mandate.eth
+    has a Pending action + several Executed ones).
+  - Have a wallet already connected (just for the UI state, you won't
+    sign anything) so "Connect wallet" doesn't eat time on camera.
+  - Keep a Sepolia Etherscan tab pre-opened in the background.
+
+What to showcase, in order:
+
+1. Landing page — one glance, one line, click "Launch app."
+   SAY: "Mandate gives every on-chain agent a real identity, ERC-8004
+   plus a human-readable ENS name, then puts any change to its
+   ownership behind a second, hardware-signed approval."
+
+2. Agents dashboard — the grid of real on-chain agents: identity,
+   live status (Confirmed/Pending/Blocked), reputation score. Use the
+   search box and a status filter pill to show it's real filtering.
+   SAY: "Every card is a real registered identity, not mock data —
+   including reputation feedback other users have actually left
+   on-chain for it."
+
+3. Agent detail — current owner, capability manifest, gated-action
+   history table. Click through to Etherscan.
+   SAY: "The owner here is a live read straight off the chain, not a
+   cached value. The capability manifest comes from an ENS text
+   record. And this whole action history is indexed by a subgraph,
+   not our own database — every row traces back to a real event."
+
+4. Register — open /register and walk through the three self-serve
+   steps without submitting: connect wallet, register identity,
+   deploy your own gate.
+   SAY: "Registration is fully self-serve. Connect your own wallet,
+   mint your agent's ERC-8004 identity with its ENS name, then deploy
+   your own PermissionGate naming your own hardware approver — every
+   one of these is a direct call from your wallet, nothing runs
+   through a backend key. I'll skip actually submitting to keep this
+   tight."
+
+5. Propose a change — open the Propose form, show the fields, don't
+   submit. Then navigate straight to the agent's existing Pending
+   action instead.
+   SAY: "A proposed change, an ownership transfer or a permission
+   escalation, routes through the PermissionGate and sits blocked as
+   Pending. Here's one doing exactly that right now."
+
+6. The payoff — an agent with an already-Executed action in its
+   history. Click into it, then over to the Etherscan tab.
+   SAY: "Nothing executes without a second signature: a physically
+   signed, typed-data approval on hardware. This one's already been
+   signed and executed — real transaction, right here on Etherscan."
+
+Buffer: if you're running long, cut step 4 (Register) down to a
+single sentence over the dashboard instead of opening the page — it's
+the most skippable beat.

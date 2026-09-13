@@ -16,3 +16,6 @@ coverage/
 subgraph/generated/
 subgraph/build/
 .claude/
+*.mp4
+*.mov
+*.mkv

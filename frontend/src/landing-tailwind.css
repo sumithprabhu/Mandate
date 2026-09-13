@@ -37,3 +37,16 @@
     height: 0;
   }
 }
+
+/* Each grid cell in the CTA banner runs this on its own randomized delay/duration --
+   see components/landing/animated-gradient.tsx. */
+@keyframes cell-flicker {
+  0%,
+  88%,
+  100% {
+    background-color: transparent;
+  }
+  94% {
+    background-color: color-mix(in srgb, var(--color-brand-purple) 35%, transparent);
+  }
+}

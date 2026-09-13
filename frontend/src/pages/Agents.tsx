@@ -64,9 +64,8 @@ export function AgentsPage() {
             const sub = subgraphData[String(agent.agentId)];
             const actionCount = sub?.gatedActions.length ?? 0;
             const status = sub ? deriveStatus(sub.gatedActions) : "confirmed";
-            const span = actionCount >= 2 ? 2 : 1;
             return (
-              <Link key={agent.agentId} to={`/agents/${agent.name}`} className={`panel bento__cell--${span} agent-card`}>
+              <Link key={agent.agentId} to={`/agents/${agent.name}`} className="panel bento__cell--1 agent-card">
                 <div className="status-row">
                   <StatusDot status={status} />
                   {status === "pending" ? "Awaiting confirmation" : status === "blocked" ? "Blocked" : "Confirmed"}

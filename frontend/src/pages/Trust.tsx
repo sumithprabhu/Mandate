@@ -63,12 +63,10 @@ export function TrustPage() {
           {agents.map((agent) => {
             const sub = subgraphData[String(agent.agentId)];
             const actionCount = sub?.gatedActions.length ?? 0;
-            const feedbackCount = sub?.feedback.length ?? 0;
             const status = sub ? deriveStatus(sub.gatedActions) : "confirmed";
-            const span = actionCount + feedbackCount >= 2 ? 2 : 1;
 
             return (
-              <div key={agent.agentId} className={`panel bento__cell--${span} agent-card`}>
+              <div key={agent.agentId} className="panel bento__cell--1 agent-card">
                 <div className="status-row">
                   <StatusDot status={status} />
                   {statusLabel(status)}

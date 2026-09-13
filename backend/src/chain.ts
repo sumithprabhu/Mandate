@@ -99,15 +99,35 @@ export async function registerChildAgent(
 
   let transferTx: Hex | undefined;
   if (owner && owner.toLowerCase() !== operator.address.toLowerCase()) {
-    const transferSim = await publicClient.simulateContract({
-      account: operator,
-      address: subregistry,
-      abi: subregistryAbi,
-      functionName: "safeTransferFrom",
-      args: [operator.address, owner, tokenId, 1n, "0x"],
-    });
-    transferTx = await operatorClient.writeContract(transferSim.request);
-    await publicClient.waitForTransactionReceipt({ hash: transferTx });
+    try {
+      const transferSim = await publicClient.simulateContract({
+        account: operator,
+        address: subregistry,
+        abi: subregistryAbi,
+        functionName: "safeTransferFrom",
+        args: [operator.address, owner, tokenId, 1n, "0x"],
+      });
+      transferTx = await operatorClient.writeContract(transferSim.request);
+      await publicClient.waitForTransactionReceipt({ hash: transferTx });
+    } catch (err) {
+      // The identity is already registered and bound on chain at this point (both prior
+      // txs are confirmed, not rolled back by this failure) -- it's just still owned by
+      // the operator instead of `owner`. safeTransferFrom is an ERC1155 call, which
+      // requires a contract recipient to implement onERC1155Received; a growing class of
+      // wallets (EIP-7702 "smart EOAs") have code but don't implement it, and the raw
+      // revert here gives no useful signal as to why. Check for that specific case and
+      // say so plainly instead of surfacing viem's generic "execution reverted" dump.
+      const code = await publicClient.getBytecode({ address: owner });
+      if (code && code !== "0x") {
+        throw new Error(
+          `Registered and bound on chain, but the handoff to your wallet failed: ${owner} has contract code ` +
+            "(likely an EIP-7702 smart account) that doesn't implement the ERC1155 receiver hook this transfer " +
+            "requires. The identity now exists but is still held by the operator -- try again with a plain EOA " +
+            "wallet (no smart-account features enabled), or a different wallet extension."
+        );
+      }
+      throw err;
+    }
   }
 
   return { tokenId, agentId, registerTx, bindTx, transferTx };

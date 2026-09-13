@@ -47,6 +47,6 @@
     background-color: transparent;
   }
   94% {
-    background-color: color-mix(in srgb, var(--color-brand-purple) 35%, transparent);
+    background-color: color-mix(in srgb, var(--color-brand-mint) 45%, transparent);
   }
 }

@@ -120,7 +120,13 @@ export function HomePage() {
         </div>
 
         <section id="how-it-works" className="mx-auto max-w-5xl px-7 py-28">
-          <h2 className="mb-20 text-2xl font-extrabold">How Mandate works</h2>
+          {/* tokens.css sets a global, unlayered `h1,h2,h3,h4 { margin: 0 }` -- unlayered
+              rules always beat Tailwind's layered utilities regardless of value, so mb-*
+              directly on the h2 gets silently zeroed. Wrapping it in a plain div (not
+              targeted by that rule) sidesteps the conflict instead of fighting it. */}
+          <div className="mb-20">
+            <h2 className="text-2xl font-extrabold">How Mandate works</h2>
+          </div>
           <motion.div
             className="grid gap-8 sm:grid-cols-3"
             variants={stagger}
@@ -143,7 +149,9 @@ export function HomePage() {
         </section>
 
         <section id="faq" className="mx-auto max-w-3xl px-7 py-28">
-          <h2 className="mb-16 text-2xl font-extrabold">Frequently asked</h2>
+          <div className="mb-16">
+            <h2 className="text-2xl font-extrabold">Frequently asked</h2>
+          </div>
           <Accordion type="single" collapsible className="flex flex-col gap-4">
             {faqs.map((item) => (
               <AccordionItem key={item.q} value={item.q}>

@@ -20,7 +20,7 @@ export function AnimatedGradient() {
         return (
           <div
             key={i}
-            className="border border-white/5 transition-colors duration-300 hover:bg-brand-purple/40!"
+            className="border border-white/5 transition-colors duration-300 hover:bg-brand-mint/40!"
             style={{ animation: `cell-flicker ${duration}s ease-in-out ${delay}s infinite` }}
           />
         );
